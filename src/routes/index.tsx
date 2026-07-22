@@ -7,6 +7,7 @@ import { useNow } from '@/hooks/useNow'
 import { useRecentlyUpdatedWorkItems, useWorkItems } from '@/hooks/useWorkItems'
 import { formatDuration, formatRelativeTime, getElapsedMs } from '@/lib/time'
 import type { WorkItemStatus } from '@/types/domain'
+import { useToast } from '@/components/ui/toast'
 
 export const Route = createFileRoute('/')({
   component: RouteComponent,
@@ -18,6 +19,7 @@ function RouteComponent() {
   const recentItems = useRecentlyUpdatedWorkItems(8)
   const recentActivities = useRecentActivities(8)
   const { createActivity, startActivity, stopActivity } = useActivityActions()
+  const { showToast } = useToast()
 
   const itemMap = new Map(items.map((item) => [item.id, item]))
 
@@ -47,7 +49,15 @@ function RouteComponent() {
             tags={activity.tags}
             state={activity.state}
             detailTo={`/activities/${activity.id}`}
-            onToggleRunning={() => (activity.state === "running" ? stopActivity(activity.id) : startActivity(activity.id))}
+            onToggleRunning={async () => {
+              if (activity.state === "running") {
+                await stopActivity(activity.id)
+                showToast("Activity paused")
+              } else {
+                await startActivity(activity.id)
+                showToast("Activity started")
+              }
+            }}
           />
         )
       })}
@@ -77,7 +87,15 @@ function RouteComponent() {
                 <span key={tag} className="rounded-md bg-secondary px-2 py-1 text-secondary-foreground">#{tag}</span>
               ))}
             </div>
-            <Button className="w-full" onClick={() => createActivity({ workItemId: item.id, startNow: true })}>Start activity</Button>
+            <Button
+              className="w-full"
+              onClick={async () => {
+                await createActivity({ workItemId: item.id, startNow: true })
+                showToast("Activity started")
+              }}
+            >
+              Start activity
+            </Button>
           </CardContent>
         </Card>
       ))}

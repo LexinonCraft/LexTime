@@ -7,6 +7,7 @@ import { useActivity, useActivityActions } from "@/hooks/useActivities"
 import { useNow } from "@/hooks/useNow"
 import { useWorkItems } from "@/hooks/useWorkItems"
 import { formatDuration, formatRelativeTime, getElapsedMs } from "@/lib/time"
+import { useToast } from "@/components/ui/toast"
 
 export const Route = createFileRoute("/activities/$activityId")({
   component: RouteComponent,
@@ -17,6 +18,7 @@ function RouteComponent() {
   const now = useNow()
   const activityRow = useActivity(activityId)
   const items = useWorkItems()
+  const { showToast } = useToast()
 
   const { startActivity, stopActivity, updateActivity } = useActivityActions()
 
@@ -63,6 +65,7 @@ function RouteComponent() {
           updateActivity={updateActivity}
           startActivity={startActivity}
           stopActivity={stopActivity}
+          showToast={showToast}
         />
       </Card>
     </div>
@@ -78,6 +81,7 @@ interface ActivityDetailEditorProps {
   updateActivity: ReturnType<typeof useActivityActions>["updateActivity"]
   startActivity: ReturnType<typeof useActivityActions>["startActivity"]
   stopActivity: ReturnType<typeof useActivityActions>["stopActivity"]
+  showToast: (message: string) => void
 }
 
 function ActivityDetailEditor({
@@ -89,6 +93,7 @@ function ActivityDetailEditor({
   updateActivity,
   startActivity,
   stopActivity,
+  showToast,
 }: ActivityDetailEditorProps) {
   const [draftTitle, setDraftTitle] = useState(title)
   const [draftTags, setDraftTags] = useState(tags.join(", "))
@@ -122,7 +127,18 @@ function ActivityDetailEditor({
       )}
 
       <div className="flex gap-2">
-        <Button className="flex-1" onClick={() => (state === "running" ? stopActivity(activityId) : startActivity(activityId))}>
+        <Button
+          className="flex-1"
+          onClick={async () => {
+            if (state === "running") {
+              await stopActivity(activityId)
+              showToast("Activity paused")
+            } else {
+              await startActivity(activityId)
+              showToast("Activity started")
+            }
+          }}
+        >
           {state === "running" ? "Stop" : "Start"}
         </Button>
         <Button className="flex-1" variant="outline" onClick={onSave}>Save details</Button>

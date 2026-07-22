@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar"
 import { useOnline } from "@/hooks/useOnline"
 import { useLocation } from "@tanstack/react-router"
+import { ToastViewport } from "@/components/ui/toast"
 
 export default function NavbarLayout({ children }: { children: React.ReactNode }) {
     const online = useOnline()
@@ -13,9 +14,10 @@ export default function NavbarLayout({ children }: { children: React.ReactNode }
                 You are offline. Changes are saved locally.
             </div>
         )}
-        <div className="pb-20">
+        <div className={hideNavbar ? "pb-4" : "pb-20"}>
             {children}
         </div>
+        <ToastViewport navbarVisible={!hideNavbar} />
         {!hideNavbar && <Navbar />}
     </div>
 }

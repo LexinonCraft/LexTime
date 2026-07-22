@@ -9,10 +9,11 @@ import { useActivities, useActivityActions } from "@/hooks/useActivities"
 import { useNow } from "@/hooks/useNow"
 import { useWorkItem, useWorkItemActions, useWorkItems } from "@/hooks/useWorkItems"
 import { formatDuration, getElapsedMs } from "@/lib/time"
-import { getDirectChildren, getFullPath, getPath } from "@/lib/workItems"
+import { getDirectChildren, getPath } from "@/lib/workItems"
 import type { WorkItemStatus } from "@/types/domain"
 import { cn } from "@/lib/utils"
 import { Hashtag, StatusTag, TagList } from "@/components/Tag"
+import { useToast } from "@/components/ui/toast"
 
 export const Route = createFileRoute("/projects/$projectId")({
   component: RouteComponent,
@@ -26,6 +27,7 @@ function RouteComponent() {
   const item = useWorkItem(projectId)
   const allItems = useWorkItems()
   const activityRows = useActivities()
+  const { showToast } = useToast()
 
   const { setWorkItemStatus, updateWorkItem } = useWorkItemActions()
   const { createActivity, startActivity, stopActivity } = useActivityActions()
@@ -61,6 +63,7 @@ function RouteComponent() {
 
     setNewActivityTitle("")
     setNewActivityTags("")
+    showToast(startImmediately ? "Activity started" : "Activity created")
     navigate({ to: "/activities/$activityId", params: { activityId: created.id } })
   }
 
@@ -172,7 +175,15 @@ function RouteComponent() {
               tags={activity.tags}
               state={activity.state}
               detailTo={`/activities/${activity.id}`}
-              onToggleRunning={() => (activity.state === "running" ? stopActivity(activity.id) : startActivity(activity.id))}
+              onToggleRunning={async () => {
+                if (activity.state === "running") {
+                  await stopActivity(activity.id)
+                  showToast("Activity paused")
+                } else {
+                  await startActivity(activity.id)
+                  showToast("Activity started")
+                }
+              }}
             />
           ))}
         </CardContent>

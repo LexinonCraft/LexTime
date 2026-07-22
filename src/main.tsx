@@ -4,6 +4,7 @@ import './index.css'
 import { routeTree } from './routeTree.gen'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { ensureDbInitialized } from '@/lib/bootstrap'
+import { ToastProvider } from '@/components/ui/toast'
 
 // Set up a Router instance
 export const router = createRouter({
@@ -27,7 +28,9 @@ ensureDbInitialized()
   .finally(() => {
     createRoot(document.getElementById('root')!).render(
       <StrictMode>
-        <RouterProvider router={router} />
+        <ToastProvider>
+          <RouterProvider router={router} />
+        </ToastProvider>
       </StrictMode>,
     )
   })

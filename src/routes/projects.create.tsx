@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useWorkItems } from "@/hooks/useWorkItems"
 import { getFullPath } from "@/lib/workItems"
+import { useToast } from "@/components/ui/toast"
 
 export const Route = createFileRoute("/projects/create")({
   component: RouteComponent,
@@ -15,6 +16,7 @@ function RouteComponent() {
   const search = Route.useSearch() as { parentId?: string }
   const navigate = useNavigate()
   const items = useWorkItems()
+  const { showToast } = useToast()
 
   const parent = useMemo(() => {
     if (!search.parentId) {
@@ -42,7 +44,14 @@ function RouteComponent() {
       status: "todo",
     })
 
+    showToast(parent ? "Subproject created" : "Project created")
+
     navigate({ to: "/projects/$projectId", params: { projectId: created.id }, replace: true })
+  }
+
+  const onCancel = () => {
+    showToast("Creation canceled")
+    navigate({ to: parent ? "/projects/$projectId" : "/projects", params: parent ? { projectId: parent.id } : undefined, replace: true })
   }
 
   return (
@@ -78,7 +87,7 @@ function RouteComponent() {
 
           <div className="flex gap-2">
             <Button className="flex-1" onClick={onCreate}>Create</Button>
-            <Button className="flex-1" variant="outline" onClick={() => navigate({ to: parent ? "/projects/$projectId" : "/projects", params: parent ? { projectId: parent.id } : undefined, replace: true })}>Cancel</Button>
+            <Button className="flex-1" variant="outline" onClick={onCancel}>Cancel</Button>
           </div>
         </CardContent>
       </Card>
