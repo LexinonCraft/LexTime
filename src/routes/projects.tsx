@@ -60,7 +60,7 @@ function RouteComponent() {
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           <Button asChild>
-            <Link to="/projects/create" search={{}}>Create root project</Link>
+            <Link to="/projects/create" search={{}} replace>Create root project</Link>
           </Button>
           <Button variant="outline" asChild>
             <Link to="/projects/filter" search={filter}>Customize filter</Link>

@@ -61,7 +61,7 @@ function RouteComponent() {
 
   return (
     <div className="space-y-4 p-3">
-      <h1 className="text-3xl font-bold">Project details</h1>
+      <h1 className="text-xl text-center font-semibold">Project details</h1>
 
       <Card>
         <CardHeader>
@@ -86,7 +86,7 @@ function RouteComponent() {
         </CardHeader>
         <CardContent className="space-y-2">
           <Button asChild className="w-full">
-            <Link to="/projects/create" search={{ parentId: item.id }}>Create subproject</Link>
+            <Link to="/projects/create" search={{ parentId: item.id }} replace>Create subproject</Link>
           </Button>
 
           {children.length === 0 && <p className="text-sm text-muted-foreground">No direct children yet.</p>}

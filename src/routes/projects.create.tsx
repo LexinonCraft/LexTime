@@ -42,7 +42,7 @@ function RouteComponent() {
       status: "todo",
     })
 
-    navigate({ to: "/projects/$projectId", params: { projectId: created.id } })
+    navigate({ to: "/projects/$projectId", params: { projectId: created.id }, replace: true })
   }
 
   return (
@@ -78,7 +78,7 @@ function RouteComponent() {
 
           <div className="flex gap-2">
             <Button className="flex-1" onClick={onCreate}>Create</Button>
-            <Button className="flex-1" variant="outline" onClick={() => navigate({ to: "/projects" })}>Cancel</Button>
+            <Button className="flex-1" variant="outline" onClick={() => navigate({ to: parent ? "/projects/$projectId" : "/projects", params: parent ? { projectId: parent.id } : undefined, replace: true })}>Cancel</Button>
           </div>
         </CardContent>
       </Card>
