@@ -1,15 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useMemo, useState } from "react"
+import { Pencil, Plus } from "lucide-react"
 
 import Activity from "@/components/Activity"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useActivities, useActivityActions } from "@/hooks/useActivities"
 import { useNow } from "@/hooks/useNow"
 import { useWorkItem, useWorkItemActions, useWorkItems } from "@/hooks/useWorkItems"
 import { formatDuration, getElapsedMs } from "@/lib/time"
-import { getDirectChildren, getFullPath } from "@/lib/workItems"
+import { getDirectChildren, getFullPath, getPath } from "@/lib/workItems"
 import type { WorkItemStatus } from "@/types/domain"
+import { cn } from "@/lib/utils"
+import { Hashtag, StatusTag, TagList } from "@/components/Tag"
 
 export const Route = createFileRoute("/projects/$projectId")({
   component: RouteComponent,
@@ -26,6 +29,8 @@ function RouteComponent() {
 
   const { setWorkItemStatus, updateWorkItem } = useWorkItemActions()
   const { createActivity, startActivity, stopActivity } = useActivityActions()
+
+  const [editingMetadata, setEditingMetadata] = useState(false)
 
   const [newActivityTitle, setNewActivityTitle] = useState("")
   const [newActivityTags, setNewActivityTags] = useState("")
@@ -65,30 +70,49 @@ function RouteComponent() {
 
       <Card>
         <CardHeader>
+          <CardDescription>{getPath(allItems, item.id)}</CardDescription>
           <CardTitle>{item.title}</CardTitle>
-          <CardDescription>{getFullPath(allItems, item.id)}</CardDescription>
+          <CardAction>
+            <Button variant="secondary" disabled={editingMetadata} onClick={() => setEditingMetadata(true)}><Pencil className={cn("h-10 w-10", !editingMetadata ? "text-primary" : "text-muted-foreground")} /></Button>
+          </CardAction>
         </CardHeader>
-        <ProjectMetadataEditor
-          key={item.id}
-          itemId={item.id}
-          title={item.title}
-          description={item.description}
-          tags={item.tags}
-          updateWorkItem={updateWorkItem}
-          setWorkItemStatus={setWorkItemStatus}
-        />
+        {editingMetadata ?
+            <ProjectMetadataEditor
+            key={item.id}
+            itemId={item.id}
+            title={item.title}
+            description={item.description}
+            tags={item.tags}
+            updateWorkItem={async (id, patch) => { updateWorkItem(id, patch); setEditingMetadata(false); }}
+            setWorkItemStatus={setWorkItemStatus}
+            />
+        :
+        <CardContent className="space-y-2">
+            <TagList>
+                <StatusTag status={statusLabel(item.status)} textColor={statusTextColor(item.status)} backgroundColor={statusBackgroundColor(item.status)} />
+                {
+                    item.tags.map((tag) => (
+                        <Hashtag key={tag} tag={tag} />
+                    ))
+                }
+            </TagList>
+            {item.description ?
+                <div className="text-sm">{item.description}</div>
+                :
+                <div className="text-sm italic text-muted-foreground">No description</div>
+            }
+        </CardContent>
+        }
       </Card>
 
       <Card>
         <CardHeader>
           <CardTitle>Subprojects</CardTitle>
-          <CardDescription>Deeper nested children are fully visible here.</CardDescription>
+          <CardAction>
+            <Button variant="secondary" asChild><Link to="/projects/create" search={{ parentId: item.id }} replace><Plus className="h-4 w-4 text-primary" /></Link></Button>
+          </CardAction>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Button asChild className="w-full">
-            <Link to="/projects/create" search={{ parentId: item.id }} replace>Create subproject</Link>
-          </Button>
-
           {children.length === 0 && <p className="text-sm text-muted-foreground">No direct children yet.</p>}
           {children.map((child) => (
             <div key={child.id} className="flex items-center justify-between rounded-md bg-muted p-2">
@@ -232,5 +256,35 @@ function statusLabel(status: WorkItemStatus): string {
       return "Archived"
     default:
       return status
+  }
+}
+
+function statusBackgroundColor(status: WorkItemStatus): string {
+  switch (status) {
+    case "todo":
+      return "bg-red-100"
+    case "in_progress":
+      return "bg-yellow-100"
+    case "done":
+      return "bg-green-100"
+    case "archived":
+      return "bg-gray-100"
+    default:
+      return "bg-gray-100"
+  }
+}
+
+function statusTextColor(status: WorkItemStatus): string {
+  switch (status) {
+    case "todo":
+      return "text-red-800"
+    case "in_progress":
+      return "text-yellow-800"
+    case "done":
+      return "text-green-800"
+    case "archived":
+      return "text-gray-800"
+    default:
+      return "text-gray-800"
   }
 }

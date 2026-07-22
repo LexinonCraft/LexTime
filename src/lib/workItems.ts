@@ -65,6 +65,12 @@ export function getFullPath(items: WorkItem[], selectedId: string): string {
   return getLineage(items, selectedId).map((item) => item.title).join(" / ")
 }
 
+export function getPath(items: WorkItem[], selectedId: string): string {
+    const lineage = getLineage(items, selectedId)
+    lineage.pop()
+    return lineage.map((item) => item.title).join(" / ") + (lineage.length > 0 ? " /" : "")
+}
+
 export function getAmbiguousTitleIds(items: WorkItem[]): Set<string> {
   const titleCounts = new Map<string, number>()
 
