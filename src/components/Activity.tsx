@@ -1,22 +1,23 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { ActivityState } from "@/types/domain";
+import { Link } from "@tanstack/react-router";
 
 interface ActivityProps {
+    id?: string
     title: string
     subtitle: string
     tags: string[]
     state: ActivityState
-    detailTo?: string
     onToggleRunning?: () => void | Promise<void>
 }
 
 export default function Activity({
+    id,
     title,
     subtitle,
     tags,
     state,
-    detailTo,
     onToggleRunning,
 }: ActivityProps) {
     return <Card>
@@ -31,9 +32,9 @@ export default function Activity({
             </div>
         </CardContent>
         <CardFooter className="flex gap-2">
-            {detailTo && (
+            {id && (
                 <Button className="flex-1" variant="outline" asChild>
-                    <a href={detailTo}>Details</a>
+                    <Link to={`/activities/$activityId`} params={{ activityId: id }}>Details</Link>
                 </Button>
             )}
             {onToggleRunning && (

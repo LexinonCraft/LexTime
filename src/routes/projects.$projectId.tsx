@@ -170,11 +170,11 @@ function RouteComponent() {
           {relatedActivities.map(({ activity, sessions }) => (
             <Activity
               key={activity.id}
+              id={activity.id}
               title={activity.title || item.title}
               subtitle={`Tracked ${formatDuration(getElapsedMs(activity, sessions, now))}`}
               tags={activity.tags}
               state={activity.state}
-              detailTo={`/activities/${activity.id}`}
               onToggleRunning={async () => {
                 if (activity.state === "running") {
                   await stopActivity(activity.id)

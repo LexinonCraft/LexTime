@@ -44,11 +44,11 @@ function RouteComponent() {
         return (
           <Activity
             key={activity.id}
+            id={activity.id}
             title={activity.title || linkedItem?.title || "Untitled activity"}
             subtitle={`Tracked ${durationLabel} - updated ${formatRelativeTime(activity.updatedAt, now)}`}
             tags={activity.tags}
             state={activity.state}
-            detailTo={`/activities/${activity.id}`}
             onToggleRunning={async () => {
               if (activity.state === "running") {
                 await stopActivity(activity.id)
