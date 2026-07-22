@@ -1,10 +1,10 @@
-import { Link, useMatchRoute } from "@tanstack/react-router"
-import { ChartArea, House, Settings, type LucideIcon } from "lucide-react"
+import { Link, useLocation } from "@tanstack/react-router"
+import { BriefcaseBusiness, ChartArea, House, Settings, type LucideIcon } from "lucide-react"
 
 type Entry = {
     icon: LucideIcon,
     name: string,
-    route: string
+    route: "/" | "/projects" | "/statistics" | "/settings"
 }
 
 const entries: Entry[] = [
@@ -12,6 +12,11 @@ const entries: Entry[] = [
         icon: House,
         name: "Home",
         route: "/"
+    },
+    {
+        icon: BriefcaseBusiness,
+        name: "Projects",
+        route: "/projects"
     },
     {
         icon: ChartArea,
@@ -37,8 +42,8 @@ function NavbarItem({ entry: { icon: Icon, name, route }, selected }: { entry: E
 }
 
 export default function Navbar() {
-    const matchRoute = useMatchRoute()
-    const matchIndex = entries.findIndex((entry, i) => i != 0 && !!matchRoute({ from: entry.route }))
+    const location = useLocation()
+    const matchIndex = entries.findIndex((entry, i) => i !== 0 && location.pathname.startsWith(entry.route))
     const selected = matchIndex < 0 ? 0 : matchIndex
 
     return <div className="fixed bottom-0 left-0 right-0 pb-5 h-20 flex flex-row justify-stretch bg-[rgba(230,230,230,0.5)] backdrop-blur-xl browser:hidden">
