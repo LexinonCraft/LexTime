@@ -10,6 +10,7 @@ import { ToastProvider } from '@/components/ui/toast'
 export const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
+  defaultStaleTime: 5000,
   scrollRestoration: true,
   basepath: import.meta.env.BASE_URL
 })

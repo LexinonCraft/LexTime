@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import Activity from '@/components/Activity'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,6 +8,7 @@ import { useRecentlyUpdatedWorkItems, useWorkItems } from '@/hooks/useWorkItems'
 import { formatDuration, formatRelativeTime, getElapsedMs } from '@/lib/time'
 import type { WorkItemStatus } from '@/types/domain'
 import { useToast } from '@/components/ui/toast'
+import { Settings } from 'lucide-react'
 
 export const Route = createFileRoute('/')({
   component: RouteComponent,
@@ -24,7 +25,14 @@ function RouteComponent() {
   const itemMap = new Map(items.map((item) => [item.id, item]))
 
   return <div className="p-3">
-    <h1 className="mb-5 text-3xl font-bold">Welcome back</h1>
+    <div className="mb-5 flex items-center justify-between gap-3">
+      <h1 className="text-3xl font-bold">Welcome back</h1>
+      <Button variant="ghost" aria-label="Settings" className="[&_svg]:!size-6 text-primary">
+        <Link to="/settings">
+          <Settings />
+        </Link>
+      </Button>
+    </div>
 
     <h2 className="my-3 text-2xl font-bold">Recent activities</h2>
     <div className="space-y-3">

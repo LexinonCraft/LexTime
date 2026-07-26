@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useMemo, useState } from "react"
-import { Pencil, Plus } from "lucide-react"
+import { CircleEllipsis, Pencil, Plus } from "lucide-react"
 
 import Activity from "@/components/Activity"
 import { Button } from "@/components/ui/button"
@@ -11,13 +11,23 @@ import { useWorkItem, useWorkItemActions, useWorkItems } from "@/hooks/useWorkIt
 import { formatDuration, getElapsedMs } from "@/lib/time"
 import { getDirectChildren, getPath } from "@/lib/workItems"
 import type { WorkItemStatus } from "@/types/domain"
-import { cn } from "@/lib/utils"
 import { Hashtag, StatusTag, TagList } from "@/components/Tag"
 import { useToast } from "@/components/ui/toast"
+import TitleBarLayout from "@/layouts/TitleBarLayout"
 
 export const Route = createFileRoute("/projects/$projectId")({
   component: RouteComponent,
 })
+
+function titleBarRightIcons() {
+  return (
+    <Button variant="ghost" className="[&_svg]:!size-6 text-primary">
+      <Link to="/projects/create" search={{ parentId: undefined }}>
+        <CircleEllipsis />
+      </Link>
+    </Button>
+  )
+}
 
 function RouteComponent() {
   const { projectId } = Route.useParams()
@@ -67,16 +77,14 @@ function RouteComponent() {
     navigate({ to: "/activities/$activityId", params: { activityId: created.id } })
   }
 
-  return (
+  return <TitleBarLayout title="Project details" rightIcons={titleBarRightIcons()}>
     <div className="space-y-4 p-3">
-      <h1 className="text-xl text-center font-semibold">Project details</h1>
-
       <Card>
         <CardHeader>
           <CardDescription>{getPath(allItems, item.id)}</CardDescription>
           <CardTitle>{item.title}</CardTitle>
           <CardAction>
-            <Button variant="secondary" disabled={editingMetadata} onClick={() => setEditingMetadata(true)}><Pencil className={cn("h-10 w-10", !editingMetadata ? "text-primary" : "text-muted-foreground")} /></Button>
+            <Button variant="secondary" disabled={editingMetadata} onClick={() => setEditingMetadata(true)}><Pencil className={!editingMetadata ? "text-primary" : "text-muted-foreground"} /></Button>
           </CardAction>
         </CardHeader>
         {editingMetadata ?
@@ -112,7 +120,7 @@ function RouteComponent() {
         <CardHeader>
           <CardTitle>Subprojects</CardTitle>
           <CardAction>
-            <Button variant="secondary" asChild><Link to="/projects/create" search={{ parentId: item.id }} replace><Plus className="h-4 w-4 text-primary" /></Link></Button>
+            <Button variant="secondary" asChild><Link to="/projects/create" search={{ parentId: item.id }} replace><Plus className="text-primary" /></Link></Button>
           </CardAction>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -189,7 +197,7 @@ function RouteComponent() {
         </CardContent>
       </Card>
     </div>
-  )
+  </TitleBarLayout>
 }
 
 interface ProjectMetadataEditorProps {

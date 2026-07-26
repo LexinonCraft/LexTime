@@ -1,10 +1,10 @@
 import { Link, useLocation } from "@tanstack/react-router"
-import { BriefcaseBusiness, ChartArea, House, Settings, type LucideIcon } from "lucide-react"
+import { ListTree, ClipboardList, ChartArea, House, type LucideIcon } from "lucide-react"
 
 type Entry = {
     icon: LucideIcon,
     name: string,
-    route: "/" | "/projects" | "/statistics" | "/settings"
+    route: "/" | "/worktree" | "/statistics" | "/settings" | "/lists"
 }
 
 const entries: Entry[] = [
@@ -14,19 +14,19 @@ const entries: Entry[] = [
         route: "/"
     },
     {
-        icon: BriefcaseBusiness,
-        name: "Projects",
-        route: "/projects"
+        icon: ListTree,
+        name: "Worktree",
+        route: "/worktree"
+    },
+    {
+        icon: ClipboardList,
+        name: "Lists",
+        route: "/lists"
     },
     {
         icon: ChartArea,
         name: "Statistics",
         route: "/statistics"
-    },
-    {
-        icon: Settings,
-        name: "Settings",
-        route: "/settings"
     }
 ]
 
