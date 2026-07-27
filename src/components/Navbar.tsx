@@ -1,10 +1,10 @@
-import { Link, useLocation } from "@tanstack/react-router"
-import { ListTree, ClipboardList, ChartArea, House, type LucideIcon } from "lucide-react"
+import { Link, useMatchRoute } from "@tanstack/react-router"
+import { ClipboardList, ChartArea, House, type LucideIcon, Search } from "lucide-react"
 
 type Entry = {
     icon: LucideIcon,
     name: string,
-    route: "/" | "/worktree" | "/statistics" | "/settings" | "/lists"
+    route: "/" | "/worktree" | "/statistics" | "/settings" | "/lists" | "/search"
 }
 
 const entries: Entry[] = [
@@ -14,14 +14,14 @@ const entries: Entry[] = [
         route: "/"
     },
     {
-        icon: ListTree,
-        name: "Worktree",
-        route: "/worktree"
-    },
-    {
         icon: ClipboardList,
         name: "Lists",
         route: "/lists"
+    },
+    {
+        icon: Search,
+        name: "Search",
+        route: "/search"
     },
     {
         icon: ChartArea,
@@ -42,11 +42,9 @@ function NavbarItem({ entry: { icon: Icon, name, route }, selected }: { entry: E
 }
 
 export default function Navbar() {
-    const location = useLocation()
-    const matchIndex = entries.findIndex((entry, i) => i !== 0 && location.pathname.startsWith(entry.route))
-    const selected = matchIndex < 0 ? 0 : matchIndex
+    const matchRoute = useMatchRoute()
 
     return <div className="fixed bottom-0 left-0 right-0 pb-5 h-20 flex flex-row justify-stretch bg-[rgba(230,230,230,0.5)] backdrop-blur-xl browser:hidden">
-        {entries.map((entry, i) => <NavbarItem key={i} entry={entry} selected={i == selected} />)}
+        {entries.map((entry, i) => <NavbarItem key={i} entry={entry} selected={matchRoute({ to: entry.route }) !== false} />)}
     </div>
 }

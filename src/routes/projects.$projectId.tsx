@@ -14,6 +14,8 @@ import type { WorkItemStatus } from "@/types/domain"
 import { Hashtag, StatusTag, TagList } from "@/components/Tag"
 import { useToast } from "@/components/ui/toast"
 import TitleBarLayout from "@/layouts/TitleBarLayout"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
 
 export const Route = createFileRoute("/projects/$projectId")({
   component: RouteComponent,
@@ -21,11 +23,18 @@ export const Route = createFileRoute("/projects/$projectId")({
 
 function titleBarRightIcons() {
   return (
-    <Button variant="ghost" className="[&_svg]:!size-6 text-primary">
-      <Link to="/projects/create" search={{ parentId: undefined }}>
-        <CircleEllipsis />
-      </Link>
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="[&_svg]:!size-6 text-primary">
+          <CircleEllipsis />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem>
+          x
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
@@ -77,7 +86,7 @@ function RouteComponent() {
     navigate({ to: "/activities/$activityId", params: { activityId: created.id } })
   }
 
-  return <TitleBarLayout title="Project details" rightIcons={titleBarRightIcons()}>
+  return <TitleBarLayout titleBarContent={<DefaultTitleBarContent title={item.title} rightIcons={titleBarRightIcons()} />}>
     <div className="space-y-4 p-3">
       <Card>
         <CardHeader>

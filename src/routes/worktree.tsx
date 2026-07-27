@@ -7,6 +7,7 @@ import useOnScreen from '@/hooks/useOnScreen'
 import Title from '@/components/Title';
 import type { WorkItemStatus } from '@/types/domain';
 import ModalView from '@/components/ModalView';
+import DefaultTitleBarContent from '@/components/DefaultTitleBarContent';
 
 export const Route = createFileRoute('/worktree')({
     component: RouteComponent,
@@ -54,7 +55,7 @@ function RouteComponent() {
 
     const [showModal, setShowModal] = useState(false)
 
-    return <TitleBarLayout title="Worktree" hide={titleOnScreen} hideable rightIcons={titleBarRightIcons(() => setShowModal(true))}>
+    return <TitleBarLayout titleBarContent={<DefaultTitleBarContent title="Worktree" rightIcons={titleBarRightIcons(() => setShowModal(true))} />} hide={titleOnScreen} hideable>
         <ModalView height="medium" show={showModal} showTitleBar title="New work item" leftIcons={modalTitleBarLeftIcons(() => setShowModal(false))} rightIcons={modalTitleBarRightIcons(() => setShowModal(false))}>
             <div className="p-3">
                 Lorem ipsum dolor sit amet<br/>

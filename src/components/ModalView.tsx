@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import TitleBar from "@/components/TitleBar"
+import DefaultTitleBarContent from "./DefaultTitleBarContent"
 
 export type ModalViewHeight = "small" | "medium" | "large"
 
@@ -26,7 +26,7 @@ export default function ModalView({ children, height, show, showTitleBar, title,
             show ? "translate-y-0" : "translate-y-full",
             height === "small" ? "h-3/8" : height === "medium" ? "h-11/16" : "h-7/8"
         )}>
-            {showTitleBar && <TitleBar title={title ?? ""} showBorder={true} leftIcons={leftIcons} rightIcons={rightIcons} />}
+            {showTitleBar && <DefaultTitleBarContent title={title ?? ""} leftIcons={leftIcons} rightIcons={rightIcons} />}
             <div className="overflow-scroll flex-1">
                 {children}
             </div>

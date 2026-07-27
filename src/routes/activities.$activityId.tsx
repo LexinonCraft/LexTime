@@ -2,12 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useActivity, useActivityActions } from "@/hooks/useActivities"
 import { useNow } from "@/hooks/useNow"
 import { useWorkItems } from "@/hooks/useWorkItems"
 import { formatDuration, formatRelativeTime, getElapsedMs } from "@/lib/time"
 import { useToast } from "@/components/ui/toast"
+import TitleBarLayout from "@/layouts/TitleBarLayout"
+import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
+import { CircleEllipsis, Pause, StepForward } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute("/activities/$activityId")({
   component: RouteComponent,
@@ -44,10 +48,57 @@ function RouteComponent() {
 
   const elapsed = formatDuration(getElapsedMs(activityRow.activity, activityRow.sessions, now))
 
-  return (
-    <div className="space-y-4 p-3">
-      <h1 className="text-3xl font-bold">Activity details</h1>
+  return <TitleBarLayout titleBarContent={<TitleBarContent />}>
+    <div className="p-3 flex flex-col gap-3">
+      <div className="flex items-center justify-center w-full h-50">
+        <span className="text-3xl">{elapsed}</span>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>{activityRow.activity.title || linkedItem?.title || "Untitled activity"}</CardTitle>
+          <CardDescription>
+            updated {formatRelativeTime(activityRow.activity.updatedAt, now)}
+          </CardDescription>
+        </CardHeader>
+        <CardFooter className="flex flex-row gap-2 items-stretch h-20">
+          <Button variant="default" className={cn(
+            "flex-1 flex h-full [&_svg]:!size-6",
+            activityRow.activity.state !== "running" ? "text-green-800 bg-green-200" : "text-black bg-gray-200"
+          )} disabled={activityRow.activity.state === "running"} onClick={async () => {
+            await startActivity(activityRow.activity.id)
+            showToast("Activity started")
+          }}>
+            <StepForward />
+          </Button>
+          <Button variant="secondary" className={cn(
+            "flex-1 flex h-full [&_svg]:!size-6",
+            activityRow.activity.state === "running" ? "text-orange-800 bg-orange-200" : "text-black bg-gray-200"
+          )} disabled={activityRow.activity.state !== "running"} onClick={async () => {
+            await stopActivity(activityRow.activity.id)
+            showToast("Activity stopped")
+          }}>
+            <Pause />
+          </Button>
+        </CardFooter>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Related work item</CardTitle>
+        </CardHeader>
+        <CardContent>
+          (TODO: insert card here)
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Activity sessions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          (TODO: insert activity sessions here)
+        </CardContent>
+      </Card>
 
+      <div className="h-200" />
       <Card>
         <CardHeader>
           <CardTitle>{activityRow.activity.title || linkedItem?.title || "Untitled activity"}</CardTitle>
@@ -69,7 +120,17 @@ function RouteComponent() {
         />
       </Card>
     </div>
-  )
+  </TitleBarLayout>
+}
+
+function TitleBarContent() {
+  return <DefaultTitleBarContent title="Activity details" rightIcons={<>
+    <Button variant="ghost" aria-label="Settings" className="[&_svg]:!size-6 text-primary">
+        <Link to="/settings">
+          <CircleEllipsis />
+        </Link>
+      </Button>
+  </>} />
 }
 
 interface ActivityDetailEditorProps {

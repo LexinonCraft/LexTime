@@ -12,6 +12,7 @@
     "watch-routes": "tsr watch"
   },
   "dependencies": {
+    "@base-ui/react": "^1.6.0",
     "@fontsource-variable/geist": "^5.2.8",
     "@tailwindcss/vite": "^4.2.4",
     "@tanstack/react-router": "^1.169.1",
