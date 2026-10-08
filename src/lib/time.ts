@@ -10,14 +10,14 @@ export function getElapsedMs(
     .reduce((sum, session) => sum + (session.endAt ?? now) - session.startAt, 0)
 }
 
-export function formatDuration(ms: number): string {
+export function formatDuration(ms: number, full: boolean = false): string {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000))
   const hours = Math.floor(totalSeconds / 3600)
   const minutes = Math.floor((totalSeconds % 3600) / 60)
   const seconds = totalSeconds % 60
 
   if (hours > 0) {
-    return `${hours}h ${minutes}m`
+    return full ? `${hours}h ${minutes}m ${seconds}s` : `${hours}h ${minutes}m`
   }
 
   if (minutes > 0) {

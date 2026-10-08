@@ -46,7 +46,7 @@ function RouteComponent() {
     )
   }
 
-  const elapsed = formatDuration(getElapsedMs(activityRow.activity, activityRow.sessions, now))
+  const elapsed = formatDuration(getElapsedMs(activityRow.activity, activityRow.sessions, now), true)
 
   return <TitleBarLayout titleBarContent={<TitleBarContent />}>
     <div className="p-3 flex flex-col gap-3">
