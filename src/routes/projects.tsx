@@ -1,7 +1,7 @@
+import { useMemo, useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { Link, Outlet, useLocation } from "@tanstack/react-router"
 import { ChevronDown, ChevronRight } from "lucide-react"
-import { useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,10 +16,6 @@ export const Route = createFileRoute("/projects")({
 function RouteComponent() {
   const location = useLocation()
 
-  if (location.pathname !== "/projects") {
-    return <Outlet />
-  }
-
   const items = useWorkItems()
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set(items.filter((item) => item.parentId === null).map((item) => item.id)))
 
@@ -33,9 +29,14 @@ function RouteComponent() {
 
   const tags = getUniqueTags(items)
   const filtered = getFilteredWorkItems(items, filter.query, filter.status, filter.tag)
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const visibleIds = useMemo(() => withAncestors(filtered, items), [filtered, items])
 
   const treeItems = toVisibleTree(items, expandedIds, filter.maxDepth, visibleIds)
+
+  if (location.pathname !== "/projects") {
+    return <Outlet />
+  }
 
   const onToggleExpand = (itemId: string) => {
     setExpandedIds((current) => {
@@ -161,16 +162,16 @@ function toMaxDepth(value: unknown): number {
 
 function statusLabel(status: WorkItemStatus): string {
   switch (status) {
-    case "todo":
-      return "To do"
-    case "in_progress":
-      return "In progress"
-    case "done":
-      return "Done"
-    case "archived":
-      return "Archived"
-    default:
-      return status
+  case "todo":
+    return "To do"
+  case "in_progress":
+    return "In progress"
+  case "done":
+    return "Done"
+  case "archived":
+    return "Archived"
+  default:
+    return status
   }
 }
 

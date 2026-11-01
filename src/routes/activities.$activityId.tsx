@@ -1,30 +1,30 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
 import { useCallback, useEffect, useMemo, useState } from "react"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { Check, CircleCheckBig, CircleEllipsis, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, X } from "lucide-react"
+import { Controller, useForm } from "react-hook-form"
 
+import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
+import ModalView, { ConfirmationModal } from "@/components/ModalView"
+import { StatusTag, TagList } from "@/components/Tag"
 import { Button } from "@/components/ui/button"
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useActivity, useActivityActions, type ActivityWithSessions } from "@/hooks/useActivities"
-import { useNow } from "@/hooks/useNow"
-import { useWorkItems } from "@/hooks/useWorkItems"
-import { formatDuration, formatRelativeTime, getElapsedMs } from "@/lib/time"
-import { useToast } from "@/components/ui/toast"
-import TitleBarLayout from "@/layouts/TitleBarLayout"
-import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
-import { Check, CircleCheckBig, CircleEllipsis, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, X } from "lucide-react"
-import { cn } from "@/lib/utils"
-import ModalView, { ConfirmationModal } from "@/components/ModalView"
-import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Controller, useForm } from "react-hook-form"
-import type { Activity, ActivitySession } from "@/types/domain"
-import { StatusTag, TagList } from "@/components/Tag"
-import { getPath } from "@/lib/workItems"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { useToast } from "@/components/ui/toast"
+import { type ActivityWithSessions, useActivity, useActivityActions } from "@/hooks/useActivities"
+import { useNow } from "@/hooks/useNow"
+import { useWorkItems } from "@/hooks/useWorkItems"
+import TitleBarLayout from "@/layouts/TitleBarLayout"
+import { formatDuration, formatRelativeTime, getElapsedMs } from "@/lib/time"
+import { cn } from "@/lib/utils"
+import { getPath } from "@/lib/workItems"
+import type { Activity, ActivitySession } from "@/types/domain"
 
 export const Route = createFileRoute("/activities/$activityId")({
   component: RouteComponent,
@@ -42,7 +42,7 @@ function RouteComponent() {
   const [editingSession, setEditingSession] = useState<ActivitySession | undefined>()
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
 
-  const { startActivity, stopActivity, deleteActivitySessions } = useActivityActions()
+  const { startActivity, stopActivity } = useActivityActions()
 
   const linkedItem = useMemo(() => {
     if (!activityRow) {
@@ -107,11 +107,11 @@ function RouteComponent() {
         <Card key={linkedItem.id}>
           <Link to="/projects/$projectId" params={{ projectId: linkedItem.id }} key={linkedItem.id} className="no-underline">
             <CardHeader>
-                <CardDescription>{getPath(items, activityRow.activity.workItemId)}</CardDescription>
-                <CardTitle>{linkedItem?.title}</CardTitle>
-                <TagList>
-                  <StatusTag status="In progress" textColor="text-yellow-800" backgroundColor="bg-yellow-100" />
-                </TagList>
+              <CardDescription>{getPath(items, activityRow.activity.workItemId)}</CardDescription>
+              <CardTitle>{linkedItem?.title}</CardTitle>
+              <TagList>
+                <StatusTag status="In progress" textColor="text-yellow-800" backgroundColor="bg-yellow-100" />
+              </TagList>
             </CardHeader>
           </Link>
           <CardContent>{linkedItem.description}</CardContent>
@@ -125,7 +125,6 @@ function RouteComponent() {
       </>)}
       <Sessions
         activityRow={activityRow}
-        now={Date.now()}
         showSessionEditor={showSessionEditor}
         showToast={showToast}
         setEditingSession={setEditingSession}
@@ -154,11 +153,14 @@ function RouteComponent() {
   </TitleBarLayout>
 }
 
-function Sessions({ activityRow, now, showSessionEditor, showToast, setEditingSession, setShowSessionEditor }: { activityRow: ActivityWithSessions, now: number, showSessionEditor: boolean, showToast: (message: string) => void, setEditingSession: (session?: ActivitySession) => void, setShowSessionEditor: (show: boolean) => void }) {
+function Sessions({ activityRow, showToast, setEditingSession, setShowSessionEditor }: { activityRow: ActivityWithSessions, showSessionEditor: boolean, showToast: (message: string) => void, setEditingSession: (session?: ActivitySession) => void, setShowSessionEditor: (show: boolean) => void }) {
   const [selectionMode, setSelectionMode] = useState(false)
   const [selectedSessionIds, setSelectedSessionIds] = useState<string[]>([])
 
-  const { startActivity, stopActivity, deleteActivitySessions } = useActivityActions()
+  const { deleteActivitySessions } = useActivityActions()
+
+  // eslint-disable-next-line react-hooks/purity
+  const now = useMemo(() => Date.now(), [])
 
   const sessionGroups = groupSessionsByStartDay(activityRow.sessions)
 
@@ -452,11 +454,11 @@ function EditActivityModal({ show, onClose, activity, modalCounter }: { show: bo
       title: activity.title,
       tags: activity.tags.join(", "),
     })
-  }, [activity])
+  }, [activity, form])
 
   useEffect(() => {
     reset()
-  }, [modalCounter])
+  }, [modalCounter, reset])
 
   function handleSave() {
     onClose();
@@ -479,23 +481,23 @@ function EditActivityModal({ show, onClose, activity, modalCounter }: { show: bo
       </>} />} >
         <div className="p-5">
           <form>
-              <FieldGroup>
-                <Controller
-                  name="title"
-                  control={form.control}
-                  render={({ field }) => (
+            <FieldGroup>
+              <Controller
+                name="title"
+                control={form.control}
+                render={({ field }) => (
                   <Field>
                     <FieldLabel>Title</FieldLabel>
                     <Input placeholder="Doing homework" {...field} />
                     <FieldDescription>Optional title for the activity.</FieldDescription>
                   </Field>
                 )} />
-                <Field>
-                  <FieldLabel>Tags</FieldLabel>
-                  <Input {...register("tags")} />
-                  <FieldDescription>Seperate tags with a comma.</FieldDescription>
-                </Field>
-              </FieldGroup>
+              <Field>
+                <FieldLabel>Tags</FieldLabel>
+                <Input {...register("tags")} />
+                <FieldDescription>Seperate tags with a comma.</FieldDescription>
+              </Field>
+            </FieldGroup>
           </form>
         </div>
       </TitleBarLayout>

@@ -1,4 +1,5 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router"
+
 import NavbarLayout from "../layouts/NavbarLayout"
 
 export const Route = createRootRoute({
@@ -6,7 +7,7 @@ export const Route = createRootRoute({
 })
 
 function RootComponent() {
-    return <NavbarLayout>
-        <Outlet />
-    </NavbarLayout>
+  return <NavbarLayout>
+    <Outlet />
+  </NavbarLayout>
 }

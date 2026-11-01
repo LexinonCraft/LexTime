@@ -1,10 +1,13 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
 import './index.css'
-import { routeTree } from './routeTree.gen'
+
+import { StrictMode } from 'react'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
-import { ensureDbInitialized } from '@/lib/bootstrap'
+import { createRoot } from 'react-dom/client'
+
 import { ToastProvider } from '@/components/ui/toast'
+import { ensureDbInitialized } from '@/lib/bootstrap'
+
+import { routeTree } from './routeTree.gen'
 
 // Set up a Router instance
 export const router = createRouter({

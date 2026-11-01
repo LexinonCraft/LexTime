@@ -66,9 +66,9 @@ export function getFullPath(items: WorkItem[], selectedId: string): string {
 }
 
 export function getPath(items: WorkItem[], selectedId: string): string {
-    const lineage = getLineage(items, selectedId)
-    lineage.pop()
-    return lineage.map((item) => item.title).join(" / ") + (lineage.length > 0 ? " /" : "")
+  const lineage = getLineage(items, selectedId)
+  lineage.pop()
+  return lineage.map((item) => item.title).join(" / ") + (lineage.length > 0 ? " /" : "")
 }
 
 export function getAmbiguousTitleIds(items: WorkItem[]): Set<string> {

@@ -1,7 +1,7 @@
+import { touchWorkItem } from "@/data/repositories/workItemsRepository"
 import { db } from "@/lib/db"
 import { createId } from "@/lib/id"
 import type { Activity, ActivitySession } from "@/types/domain"
-import { touchWorkItem } from "@/data/repositories/workItemsRepository"
 
 export interface CreateActivityInput {
   workItemId: string

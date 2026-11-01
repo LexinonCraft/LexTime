@@ -1,21 +1,21 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useMemo, useState } from "react"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { CircleEllipsis, Pencil, Plus } from "lucide-react"
 
 import Activity from "@/components/Activity"
+import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
+import { Hashtag, StatusTag, TagList } from "@/components/Tag"
 import { Button } from "@/components/ui/button"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useToast } from "@/components/ui/toast"
 import { useActivities, useActivityActions } from "@/hooks/useActivities"
 import { useNow } from "@/hooks/useNow"
 import { useWorkItem, useWorkItemActions, useWorkItems } from "@/hooks/useWorkItems"
+import TitleBarLayout from "@/layouts/TitleBarLayout"
 import { formatDuration, getElapsedMs } from "@/lib/time"
 import { getDirectChildren, getPath } from "@/lib/workItems"
 import type { WorkItemStatus } from "@/types/domain"
-import { Hashtag, StatusTag, TagList } from "@/components/Tag"
-import { useToast } from "@/components/ui/toast"
-import TitleBarLayout from "@/layouts/TitleBarLayout"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
 
 export const Route = createFileRoute("/projects/$projectId")({
   component: RouteComponent,
@@ -97,7 +97,7 @@ function RouteComponent() {
           </CardAction>
         </CardHeader>
         {editingMetadata ?
-            <ProjectMetadataEditor
+          <ProjectMetadataEditor
             key={item.id}
             itemId={item.id}
             title={item.title}
@@ -105,23 +105,23 @@ function RouteComponent() {
             tags={item.tags}
             updateWorkItem={async (id, patch) => { updateWorkItem(id, patch); setEditingMetadata(false); }}
             setWorkItemStatus={setWorkItemStatus}
-            />
-        :
-        <CardContent className="space-y-2">
+          />
+          :
+          <CardContent className="space-y-2">
             <TagList>
-                <StatusTag status={statusLabel(item.status)} textColor={statusTextColor(item.status)} backgroundColor={statusBackgroundColor(item.status)} />
-                {
-                    item.tags.map((tag) => (
-                        <Hashtag key={tag} tag={tag} />
-                    ))
-                }
+              <StatusTag status={statusLabel(item.status)} textColor={statusTextColor(item.status)} backgroundColor={statusBackgroundColor(item.status)} />
+              {
+                item.tags.map((tag) => (
+                  <Hashtag key={tag} tag={tag} />
+                ))
+              }
             </TagList>
             {item.description ?
-                <div className="text-sm">{item.description}</div>
-                :
-                <div className="text-sm italic text-muted-foreground">No description</div>
+              <div className="text-sm">{item.description}</div>
+              :
+              <div className="text-sm italic text-muted-foreground">No description</div>
             }
-        </CardContent>
+          </CardContent>
         }
       </Card>
 
@@ -274,45 +274,45 @@ function parseTags(input: string): string[] {
 
 function statusLabel(status: WorkItemStatus): string {
   switch (status) {
-    case "todo":
-      return "To do"
-    case "in_progress":
-      return "In progress"
-    case "done":
-      return "Done"
-    case "archived":
-      return "Archived"
-    default:
-      return status
+  case "todo":
+    return "To do"
+  case "in_progress":
+    return "In progress"
+  case "done":
+    return "Done"
+  case "archived":
+    return "Archived"
+  default:
+    return status
   }
 }
 
 function statusBackgroundColor(status: WorkItemStatus): string {
   switch (status) {
-    case "todo":
-      return "bg-red-100"
-    case "in_progress":
-      return "bg-yellow-100"
-    case "done":
-      return "bg-green-100"
-    case "archived":
-      return "bg-gray-100"
-    default:
-      return "bg-gray-100"
+  case "todo":
+    return "bg-red-100"
+  case "in_progress":
+    return "bg-yellow-100"
+  case "done":
+    return "bg-green-100"
+  case "archived":
+    return "bg-gray-100"
+  default:
+    return "bg-gray-100"
   }
 }
 
 function statusTextColor(status: WorkItemStatus): string {
   switch (status) {
-    case "todo":
-      return "text-red-800"
-    case "in_progress":
-      return "text-yellow-800"
-    case "done":
-      return "text-green-800"
-    case "archived":
-      return "text-gray-800"
-    default:
-      return "text-gray-800"
+  case "todo":
+    return "text-red-800"
+  case "in_progress":
+    return "text-yellow-800"
+  case "done":
+    return "text-green-800"
+  case "archived":
+    return "text-gray-800"
+  default:
+    return "text-gray-800"
   }
 }

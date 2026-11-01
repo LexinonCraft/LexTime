@@ -1,10 +1,11 @@
+import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+
+import { ConfirmationModal } from '@/components/ModalView'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useSettings, useSettingsActions } from '@/hooks/useSettings'
 import { formatRelativeTime } from '@/lib/time'
-import { useState } from 'react'
-import ModalView, { ConfirmationModal } from '@/components/ModalView'
 
 export const Route = createFileRoute('/settings')({
   component: RouteComponent,

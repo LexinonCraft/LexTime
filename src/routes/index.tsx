@@ -1,14 +1,15 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { Settings } from 'lucide-react'
+
 import Activity from '@/components/Activity'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useToast } from '@/components/ui/toast'
 import { useActivityActions, useRecentActivities } from '@/hooks/useActivities'
 import { useNow } from '@/hooks/useNow'
 import { useRecentlyUpdatedWorkItems, useWorkItems } from '@/hooks/useWorkItems'
 import { formatDuration, formatRelativeTime, getElapsedMs } from '@/lib/time'
 import type { WorkItemStatus } from '@/types/domain'
-import { useToast } from '@/components/ui/toast'
-import { Settings } from 'lucide-react'
 
 export const Route = createFileRoute('/')({
   component: RouteComponent,
@@ -113,15 +114,15 @@ function RouteComponent() {
 
 function formatStatus(status: WorkItemStatus): string {
   switch (status) {
-    case "todo":
-      return "To do"
-    case "in_progress":
-      return "In progress"
-    case "done":
-      return "Done"
-    case "archived":
-      return "Archived"
-    default:
-      return status
+  case "todo":
+    return "To do"
+  case "in_progress":
+    return "In progress"
+  case "done":
+    return "Done"
+  case "archived":
+    return "Archived"
+  default:
+    return status
   }
 }
