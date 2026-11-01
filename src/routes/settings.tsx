@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useSettings, useSettingsActions } from '@/hooks/useSettings'
 import { formatRelativeTime } from '@/lib/time'
 import { useState } from 'react'
-import ModalView from '@/components/ModalView'
+import ModalView, { ConfirmationModal } from '@/components/ModalView'
 
 export const Route = createFileRoute('/settings')({
   component: RouteComponent,
@@ -42,20 +42,13 @@ function RouteComponent() {
         </Button>
       </CardContent>
     </Card>
-    <ModalView height="small" show={showReseedModal}>
-      <div className="p-3 flex flex-col justify-evenly h-full">
-        <div className="py-10">
-          <p className="text-center font-bold text-xl">Are you sure you want to reset and reseed the local database?</p>
-        </div>
-        <div className="flex flex-col justify-center gap-3">
-          <Button variant="destructive" disabled={busy} className="p-5" onClick={onReseed}>
-            {busy ? "Resetting..." : "Reset and reseed"}
-          </Button>
-          <Button variant="secondary" className="p-5" onClick={() => setShowReseedModal(false)}>
-            Cancel
-          </Button>
-        </div>
-      </div>
-    </ModalView>
+    <ConfirmationModal
+      prompt="Are you sure you want to reset and reseed the local database?"
+      buttons={[
+        { label: "Reset and reseed", variant: "destructive", onClick: onReseed },
+        { label: "Cancel", onClick: () => setShowReseedModal(false) }
+      ]}
+      show={showReseedModal}
+    />
   </div>
 }

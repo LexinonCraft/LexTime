@@ -128,6 +128,95 @@ export async function stopActivity(activityId: string): Promise<void> {
   await touchWorkItem(activity.workItemId)
 }
 
+export async function addActivitySession(
+  activityId: string,
+  session: Pick<ActivitySession, "startAt" | "endAt">,
+): Promise<void> {
+  const activity = await db.activities.get(activityId)
+  if (!activity) {
+    return
+  }
+
+  validateSessionTimes(session.startAt, session.endAt)
+  const now = Date.now()
+
+  await db.transaction("rw", db.activities, db.activitySessions, async () => {
+    await db.activitySessions.add({
+      id: createId("session"),
+      activityId,
+      ...session,
+    })
+    await db.activities.update(activityId, {
+      ...(session.endAt === null ? { state: "running" as const } : {}),
+      updatedAt: now,
+    })
+  })
+
+  await touchWorkItem(activity.workItemId)
+}
+
+export async function updateActivitySession(
+  activityId: string,
+  sessionId: string,
+  changes: Pick<ActivitySession, "startAt" | "endAt">,
+): Promise<void> {
+  const activity = await db.activities.get(activityId)
+  const session = await db.activitySessions.get(sessionId)
+  if (!activity || !session || session.activityId !== activityId) {
+    return
+  }
+
+  validateSessionTimes(changes.startAt, changes.endAt)
+  const now = Date.now()
+
+  await db.transaction("rw", db.activities, db.activitySessions, async () => {
+    await db.activitySessions.update(sessionId, changes)
+    const hasOpenSession = await db.activitySessions
+      .where("activityId")
+      .equals(activityId)
+      .filter((currentSession) => currentSession.endAt === null)
+      .count()
+    await db.activities.update(activityId, {
+      state: hasOpenSession > 0 ? "running" : "not_running",
+      updatedAt: now,
+    })
+  })
+
+  await touchWorkItem(activity.workItemId)
+}
+
+export async function deleteActivitySessions(activityId: string, sessionIds: string[]): Promise<void> {
+  if (sessionIds.length === 0) {
+    return
+  }
+
+  const activity = await db.activities.get(activityId)
+  if (!activity) {
+    return
+  }
+
+  const sessions = await db.activitySessions.where("id").anyOf(sessionIds).toArray()
+  const activitySessions = sessions.filter((session) => session.activityId === activityId)
+  const now = Date.now()
+
+  await db.transaction("rw", db.activities, db.activitySessions, async () => {
+    await db.activitySessions.bulkDelete(activitySessions.map((session) => session.id))
+    const hasOpenSession = await db.activitySessions
+      .where("activityId")
+      .equals(activityId)
+      .filter((session) => session.endAt === null)
+      .count()
+    await db.activities.update(activityId, {
+      ...(activity.state === "running" || activitySessions.some((session) => session.endAt === null)
+        ? { state: hasOpenSession > 0 ? "running" as const : "not_running" as const }
+        : {}),
+      updatedAt: now,
+    })
+  })
+
+  await touchWorkItem(activity.workItemId)
+}
+
 export async function updateActivityTags(activityId: string, tags: string[]): Promise<void> {
   const activity = await db.activities.get(activityId)
   if (!activity) {
@@ -174,4 +263,10 @@ function normalizeTags(tags: string[]): string[] {
     .map((tag) => tag.toLowerCase())
 
   return [...new Set(cleaned)]
+}
+
+function validateSessionTimes(startAt: number, endAt: number | null): void {
+  if (!Number.isFinite(startAt) || (endAt !== null && (!Number.isFinite(endAt) || endAt < startAt))) {
+    throw new Error("Session end time must be after its start time.")
+  }
 }

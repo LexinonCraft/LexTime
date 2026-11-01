@@ -1,7 +1,9 @@
 import { useLiveQuery } from "dexie-react-hooks"
 
 import {
+  addActivitySession,
   createActivity,
+  deleteActivitySessions,
   getActivityById,
   listActivities,
   listAllSessions,
@@ -9,6 +11,7 @@ import {
   startActivity,
   stopActivity,
   updateActivity,
+  updateActivitySession,
   updateActivityTags,
 } from "@/data/repositories/activitiesRepository"
 import type { Activity, ActivitySession } from "@/types/domain"
@@ -74,10 +77,13 @@ export function useActivity(activityId: string | undefined): ActivityWithSession
 
 export function useActivityActions() {
   return {
+    addActivitySession,
     createActivity,
+    deleteActivitySessions,
     startActivity,
     stopActivity,
     updateActivity,
+    updateActivitySession,
     updateActivityTags,
   }
 }

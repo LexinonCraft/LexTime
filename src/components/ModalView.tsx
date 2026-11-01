@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils"
 import DefaultTitleBarContent from "./DefaultTitleBarContent"
+import type { VariantProps } from "class-variance-authority"
+import { Button, type buttonVariants } from "./ui/button"
 
 export type ModalViewHeight = "small" | "medium" | "large"
 
@@ -32,4 +34,23 @@ export default function ModalView({ children, height, show, showTitleBar, title,
             </div>
         </div>
     </>
+}
+
+export function ConfirmationModal({ prompt, buttons, show }: { prompt: string, buttons: { label: string, variant?: VariantProps<typeof buttonVariants>["variant"], onClick: () => void }[], show: boolean }) {
+    return (
+        <ModalView height="small" show={show}>
+            <div className="p-3 flex flex-col justify-evenly h-full">
+                <div className="py-10">
+                <p className="text-center font-bold text-xl">{prompt}</p>
+                </div>
+                <div className="flex flex-col justify-center gap-3">
+                {buttons.map((button, index) => (
+                    <Button key={index} variant={button.variant ?? "secondary"} className="p-5" onClick={button.onClick}>
+                        {button.label}
+                    </Button>
+                ))}
+                </div>
+            </div>
+        </ModalView>
+    )
 }
