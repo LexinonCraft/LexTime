@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
+import NiceModal, { useModal } from "@ebay/nice-modal-react"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { Check, CircleCheckBig, CircleEllipsis, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, X } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
 
 import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
-import ModalView, { ConfirmationModal } from "@/components/ModalView"
+import ModalView, { ConfirmationModal, simpleModalHandler } from "@/components/ModalView"
 import { StatusTag, TagList } from "@/components/Tag"
 import { Button } from "@/components/ui/button"
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -36,11 +37,6 @@ function RouteComponent() {
   const activityRow = useActivity(activityId)
   const items = useWorkItems()
   const { showToast } = useToast()
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [editModalCounter, setEditModalCounter] = useState(0)
-  const [showSessionEditor, setShowSessionEditor] = useState(false)
-  const [editingSession, setEditingSession] = useState<ActivitySession | undefined>()
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
 
   const { startActivity, stopActivity } = useActivityActions()
 
@@ -66,7 +62,7 @@ function RouteComponent() {
 
   const elapsed = formatDuration(getElapsedMs(activityRow.activity, activityRow.sessions, now), true)
 
-  return <TitleBarLayout titleBarContent={<TitleBarContent onDeleteActivity={() => setShowDeleteConfirmation(true)} />}>
+  return <TitleBarLayout titleBarContent={<TitleBarContent onDeleteActivity={() => NiceModal.show(DeleteActivityConfirmationModal, { activityId: activityRow.activity.id })} />}>
     <div className="p-3 flex flex-col gap-3">
       <div className="flex items-center justify-center w-full h-50">
         <span className="text-3xl">{elapsed}</span>
@@ -78,7 +74,7 @@ function RouteComponent() {
             updated {formatRelativeTime(activityRow.activity.updatedAt, now)}
           </CardDescription>
           <CardAction>
-            <Button variant="secondary" onClick={() => { setShowEditModal(true); setEditModalCounter(prev => prev + 1) }}><Pencil className="text-primary" /></Button>
+            <Button variant="secondary" onClick={() => NiceModal.show(EditActivityModal, { activity: activityRow.activity })}><Pencil className="text-primary" /></Button>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex flex-row gap-2 items-stretch h-20">
@@ -123,41 +119,17 @@ function RouteComponent() {
           </CardFooter>
         </Card>
       </>)}
-      <Sessions
-        activityRow={activityRow}
-        showSessionEditor={showSessionEditor}
-        showToast={showToast}
-        setEditingSession={setEditingSession}
-        setShowSessionEditor={setShowSessionEditor}
-      />
+      <Sessions activityRow={activityRow} />
     </div>
-    <EditActivityModal show={showEditModal} onClose={() => { setShowEditModal(false); }} activity={activityRow.activity} modalCounter={editModalCounter} />
-    <SessionEditorModal
-      activityId={activityRow.activity.id}
-      session={editingSession}
-      show={showSessionEditor}
-      onClose={() => setShowSessionEditor(false)}
-      showToast={showToast}
-    />
-    <ConfirmationModal
-      prompt="Are you sure you want to delete this activity?"
-      buttons={[
-        { label: "Delete", variant: "destructive", onClick: () => {
-          setShowDeleteConfirmation(false)
-          showToast("Deletion logic not implemented yet")
-        } },
-        { label: "Cancel", onClick: () => setShowDeleteConfirmation(false) }
-      ]}
-      show={showDeleteConfirmation}
-    />
   </TitleBarLayout>
 }
 
-function Sessions({ activityRow, showToast, setEditingSession, setShowSessionEditor }: { activityRow: ActivityWithSessions, showSessionEditor: boolean, showToast: (message: string) => void, setEditingSession: (session?: ActivitySession) => void, setShowSessionEditor: (show: boolean) => void }) {
+function Sessions({ activityRow }: { activityRow: ActivityWithSessions }) {
   const [selectionMode, setSelectionMode] = useState(false)
   const [selectedSessionIds, setSelectedSessionIds] = useState<string[]>([])
 
   const { deleteActivitySessions } = useActivityActions()
+  const { showToast } = useToast()
 
   // eslint-disable-next-line react-hooks/purity
   const now = useMemo(() => Date.now(), [])
@@ -165,8 +137,7 @@ function Sessions({ activityRow, showToast, setEditingSession, setShowSessionEdi
   const sessionGroups = groupSessionsByStartDay(activityRow.sessions)
 
   const openSessionEditor = (session?: ActivitySession) => {
-    setEditingSession(session)
-    setShowSessionEditor(true)
+    NiceModal.show(SessionEditorModal, { activityId: activityRow.activity.id, session })
   }
 
   const toggleSelectionMode = () => {
@@ -339,24 +310,21 @@ function toDateTimeLocalValue(timestamp: number): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 
-function SessionEditorModal({
+const SessionEditorModal = NiceModal.create(({
   activityId,
   session,
-  show,
-  onClose,
-  showToast,
 }: {
   activityId: string
   session?: ActivitySession
-  show: boolean
-  onClose: () => void
-  showToast: (message: string) => void
-}) {
+}) => {
   const { addActivitySession, updateActivitySession } = useActivityActions()
   const [startAt, setStartAt] = useState(() => toDateTimeLocalValue(session?.startAt ?? Date.now() - 60 * 60 * 1000))
   const [endAt, setEndAt] = useState(() => session
     ? session.endAt === null ? "" : toDateTimeLocalValue(session.endAt)
     : toDateTimeLocalValue(Date.now()))
+  const { showToast } = useToast()
+  const modal = useModal()
+  const { visible, close } = simpleModalHandler(modal)
 
   const saveSession = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -376,7 +344,7 @@ function SessionEditorModal({
         await addActivitySession(activityId, { startAt: startTimestamp, endAt: endTimestamp })
         showToast("Session added")
       }
-      onClose()
+      close()
     } catch {
       showToast("Unable to save session")
     }
@@ -385,9 +353,9 @@ function SessionEditorModal({
   return (
     <ModalView
       height="medium"
-      show={show}
+      show={visible}
     >
-      <TitleBarLayout titleBarContent={<EditActivityModalTitleBarContent onClick={() => { onClose(); }} />}>
+      <TitleBarLayout titleBarContent={<EditActivityModalTitleBarContent onClick={() => { close(); }} />}>
         <div className="p-5">
           <form id="activity-session-form" onSubmit={(event) => void saveSession(event)}>
             <FieldGroup>
@@ -406,7 +374,7 @@ function SessionEditorModal({
       </TitleBarLayout>
     </ModalView>
   )
-}
+})
 
 function TitleBarContent({ onDeleteActivity }: { onDeleteActivity: () => void }) {
   return <DefaultTitleBarContent title="Activity details" rightIcons={
@@ -438,7 +406,7 @@ function EditActivityModalTitleBarContent({ onClick: onClick }: { onClick: () =>
   </>} />
 }
 
-function EditActivityModal({ show, onClose, activity, modalCounter }: { show: boolean, onClose: () => void, activity: Activity, modalCounter: number }) {
+const EditActivityModal = NiceModal.create(({ activity, modalCounter }: { activity: Activity, modalCounter: number }) => {
   const { updateActivity } = useActivityActions()
 
   const form = useForm({
@@ -460,8 +428,11 @@ function EditActivityModal({ show, onClose, activity, modalCounter }: { show: bo
     reset()
   }, [modalCounter, reset])
 
+  const modal = useModal()
+  const { visible, close } = simpleModalHandler(modal)
+
   function handleSave() {
-    onClose();
+    close();
     updateActivity(activity.id, {
       title: form.getValues("title"),
       tags: form.getValues("tags").split(",").map(tag => tag.trim()),
@@ -469,9 +440,9 @@ function EditActivityModal({ show, onClose, activity, modalCounter }: { show: bo
   }
 
   return (
-    <ModalView height="medium" show={show}>
+    <ModalView height="medium" show={visible}>
       <TitleBarLayout titleBarContent={<DefaultTitleBarContent title="Edit activity" leftIcons={<>
-        <Button variant="ghost" aria-label="Close" className="[&_svg]:size-6! text-primary" onClick={onClose}>
+        <Button variant="ghost" aria-label="Close" className="[&_svg]:size-6! text-primary" onClick={close}>
           <X />
         </Button>
       </>} rightIcons={<>
@@ -503,5 +474,24 @@ function EditActivityModal({ show, onClose, activity, modalCounter }: { show: bo
       </TitleBarLayout>
     </ModalView>
   )
-}
+})
 
+const DeleteActivityConfirmationModal = NiceModal.create(({ activityId }: { activityId: string }) => {
+  const { showToast } = useToast()
+  const modal = useModal()
+  const { visible, close } = simpleModalHandler(modal)
+
+  return (
+    <ConfirmationModal
+      prompt="Are you sure you want to delete this activity?"
+      buttons={[
+        { label: "Delete", variant: "destructive", onClick: () => {
+          close()
+          showToast(`Deletion logic not implemented yet (${activityId})`)
+        } },
+        { label: "Cancel", onClick: () => close() }
+      ]}
+      show={visible}
+    />
+  )
+})
