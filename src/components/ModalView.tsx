@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react"
+import type { NiceModalHandler } from "@ebay/nice-modal-react"
 import type { VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
@@ -19,15 +21,22 @@ export default function ModalView({ children, height, show, showTitleBar, title,
             rightIcons?: React.ReactNode
         }
 ) {
+  const [animatedShow, setAnimatedShow] = useState(false)
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setAnimatedShow(show))
+    return () => cancelAnimationFrame(id)
+  }, [show])
+
   return <>
     <div className={cn(
       "fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 ease-in-out",
-      show ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      animatedShow ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
     )} />
     <div className={cn(
       "fixed bottom-0 left-0 right-0 z-51 pb-4 bg-background rounded-lg max-w-lg w-full transition-transform duration-300 ease-in-out",
       "flex flex-col justify-start overflow-hidden",
-      show ? "translate-y-0" : "translate-y-full",
+      animatedShow ? "translate-y-0" : "translate-y-full",
       height === "small" ? "h-3/8" : height === "medium" ? "h-11/16" : "h-7/8"
     )}>
       {showTitleBar && <DefaultTitleBarContent title={title ?? ""} leftIcons={leftIcons} rightIcons={rightIcons} />}
@@ -36,6 +45,17 @@ export default function ModalView({ children, height, show, showTitleBar, title,
       </div>
     </div>
   </>
+}
+
+export function simpleModalHandler(modal: NiceModalHandler) {
+  return {
+    visible: modal.visible,
+    close: async () => {
+      modal.hide()
+      await new Promise(resolve => setTimeout(resolve, 300)) // wait for modal hide animation to complete
+      modal.remove()
+    }
+  }
 }
 
 export function ConfirmationModal({ prompt, buttons, show }: { prompt: string, buttons: { label: string, variant?: VariantProps<typeof buttonVariants>["variant"], onClick: () => void }[], show: boolean }) {

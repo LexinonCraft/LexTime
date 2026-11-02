@@ -1,6 +1,7 @@
 import './index.css'
 
 import { StrictMode } from 'react'
+import NiceModal from '@ebay/nice-modal-react'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { createRoot } from 'react-dom/client'
 
@@ -33,7 +34,9 @@ ensureDbInitialized()
     createRoot(document.getElementById('root')!).render(
       <StrictMode>
         <ToastProvider>
-          <RouterProvider router={router} />
+          <NiceModal.Provider>
+            <RouterProvider router={router} />
+          </NiceModal.Provider>
         </ToastProvider>
       </StrictMode>,
     )
