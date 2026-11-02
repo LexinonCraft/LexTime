@@ -34,7 +34,7 @@ export default function ModalView({ children, height, show, showTitleBar, title,
       animatedShow ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
     )} />
     <div className={cn(
-      "fixed bottom-0 left-0 right-0 z-51 pb-4 bg-background rounded-lg max-w-lg w-full transition-transform duration-300 ease-in-out",
+      "fixed bottom-0 left-0 right-0 z-51 pb-4 bg-background rounded-t-lg w-full transition-transform duration-300 ease-in-out",
       "flex flex-col justify-start overflow-hidden",
       animatedShow ? "translate-y-0" : "translate-y-full",
       height === "small" ? "h-3/8" : height === "medium" ? "h-11/16" : "h-7/8"
