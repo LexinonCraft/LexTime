@@ -145,12 +145,13 @@ function Sessions({ activityRow }: { activityRow: ActivityWithSessions }) {
   }
 
   const removeSessions = async (sessionIds: string[]) => {
-    if (!window.confirm(`Delete ${sessionIds.length === 1 ? "this session" : `${sessionIds.length} sessions`}?`)) {
-      return
-    }
+    await new Promise<void>((resolve) => {
+      NiceModal.show(DeleteSessionsConfirmationModal, { sessionIds, onConfirm: resolve })
+    })
 
-    await deleteActivitySessions(activityRow.activity.id, sessionIds)
     setSelectedSessionIds([])
+    setSelectionMode(false)
+    await deleteActivitySessions(activityRow.activity.id, sessionIds)
     showToast(sessionIds.length === 1 ? "Session deleted" : "Sessions deleted")
   }
 
@@ -494,6 +495,25 @@ const DeleteActivityConfirmationModal = NiceModal.create(({ activityId }: { acti
         { label: "Delete", variant: "destructive", onClick: () => {
           close()
           showToast(`Deletion logic not implemented yet (${activityId})`)
+        } },
+        { label: "Cancel", onClick: () => close() }
+      ]}
+      show={visible}
+    />
+  )
+})
+
+const DeleteSessionsConfirmationModal = NiceModal.create(({ sessionIds, onConfirm }: { sessionIds: string[], onConfirm: () => void }) => {
+  const modal = useModal()
+  const { visible, close } = simpleModalHandler(modal)
+
+  return (
+    <ConfirmationModal
+      prompt={`Are you sure you want to delete ${sessionIds.length == 1 ? "this session" : `${sessionIds.length} sessions`}?`}
+      buttons={[
+        { label: "Delete", variant: "destructive", onClick: () => {
+          close()
+          onConfirm()
         } },
         { label: "Cancel", onClick: () => close() }
       ]}
