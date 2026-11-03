@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import NiceModal, { useModal } from "@ebay/nice-modal-react"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { Check, CircleCheckBig, CircleEllipsis, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, X } from "lucide-react"
+import { Check, CircleCheckBig, CircleEllipsis, CircleX, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, X } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
 
 import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { InputGroup, InputGroupButton, InputGroupInput } from "@/components/ui/input-group"
 import { useToast } from "@/components/ui/toast"
 import { type ActivityWithSessions, useActivity, useActivityActions } from "@/hooks/useActivities"
 import { useNow } from "@/hooks/useNow"
@@ -318,17 +319,21 @@ const SessionEditorModal = NiceModal.create(({
   session?: ActivitySession
 }) => {
   const { addActivitySession, updateActivitySession } = useActivityActions()
-  const [startAt, setStartAt] = useState(() => toDateTimeLocalValue(session?.startAt ?? Date.now() - 60 * 60 * 1000))
-  const [endAt, setEndAt] = useState(() => session
-    ? session.endAt === null ? "" : toDateTimeLocalValue(session.endAt)
-    : toDateTimeLocalValue(Date.now()))
   const { showToast } = useToast()
   const modal = useModal()
   const { visible, close } = simpleModalHandler(modal)
+  const form = useForm({
+    defaultValues: {
+      startAt: toDateTimeLocalValue(session?.startAt ?? Date.now() - 60 * 60 * 1000),
+      endAt: session
+        ? session.endAt === null ? "" : toDateTimeLocalValue(session.endAt)
+        : toDateTimeLocalValue(Date.now()),
+    }
+  })
 
-  const saveSession = async () => {
-    const startTimestamp = new Date(startAt).getTime()
-    const endTimestamp = endAt ? new Date(endAt).getTime() : null
+  const saveSession = useCallback(async () => {
+    const startTimestamp = new Date(form.getValues("startAt")).getTime()
+    const endTimestamp = form.getValues("endAt") ? new Date(form.getValues("endAt")).getTime() : null
 
     if (!Number.isFinite(startTimestamp) || (endTimestamp !== null && (!Number.isFinite(endTimestamp) || endTimestamp < startTimestamp))) {
       showToast("End time must be after start time")
@@ -347,7 +352,7 @@ const SessionEditorModal = NiceModal.create(({
     } catch {
       showToast("Unable to save session")
     }
-  }
+  }, [form, session, activityId, addActivitySession, updateActivitySession, showToast, close])
 
   return (
     <ModalView
@@ -364,15 +369,20 @@ const SessionEditorModal = NiceModal.create(({
         </Button>
       } />}>
         <div className="p-5">
-          <form id="activity-session-form" onSubmit={(e) => e.preventDefault()}>
+          <form id="activity-session-form" onSubmit={(e) => { e.preventDefault(); saveSession(); }}>
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="session-start">Start time</FieldLabel>
-                <Input id="session-start" type="datetime-local" required value={startAt} onChange={(event) => setStartAt(event.target.value)} />
+                <Input id="session-start" type="datetime-local" required {...form.register("startAt")} />
               </Field>
               <Field>
                 <FieldLabel htmlFor="session-end">End time</FieldLabel>
-                <Input id="session-end" type="datetime-local" value={endAt} onChange={(event) => setEndAt(event.target.value)} />
+                <InputGroup>
+                  <InputGroupInput id="session-end" type="datetime-local" {...form.register("endAt")} />
+                  <InputGroupButton onClick={() => form.setValue("endAt", "")}>
+                    <CircleX className={form.watch("endAt") !== "" ? "text-primary" : "text-muted-foreground"} />
+                  </InputGroupButton>
+                </InputGroup>
                 <FieldDescription>Leave blank for a session that is still running.</FieldDescription>
               </Field>
             </FieldGroup>
@@ -483,10 +493,12 @@ const DeleteActivityConfirmationModal = NiceModal.create(({ activityId }: { acti
     <ConfirmationModal
       prompt="Are you sure you want to delete this activity?"
       buttons={[
-        { label: "Delete", variant: "destructive", onClick: () => {
-          close()
-          showToast(`Deletion logic not implemented yet (${activityId})`)
-        } },
+        {
+          label: "Delete", variant: "destructive", onClick: () => {
+            close()
+            showToast(`Deletion logic not implemented yet (${activityId})`)
+          }
+        },
         { label: "Cancel", onClick: () => close() }
       ]}
       show={visible}
@@ -502,10 +514,12 @@ const DeleteSessionsConfirmationModal = NiceModal.create(({ sessionIds, onConfir
     <ConfirmationModal
       prompt={`Are you sure you want to delete ${sessionIds.length == 1 ? "this session" : `${sessionIds.length} sessions`}?`}
       buttons={[
-        { label: "Delete", variant: "destructive", onClick: () => {
-          close()
-          onConfirm()
-        } },
+        {
+          label: "Delete", variant: "destructive", onClick: () => {
+            close()
+            onConfirm()
+          }
+        },
         { label: "Cancel", onClick: () => close() }
       ]}
       show={visible}
