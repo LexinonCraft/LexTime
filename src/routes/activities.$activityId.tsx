@@ -112,7 +112,7 @@ function RouteComponent() {
           </Link>
           <CardContent>{linkedItem.description}</CardContent>
           <CardFooter className="flex flex-row gap-2 items-stretch h-20">
-            <Button variant="default" className="flex-1 flex h-full [&_svg]:size-6!">
+            <Button variant="default" className="flex-1 flex h-full [&_svg]:size-6!" onClick={() => window.alert("Not implemented yet!")}>
               <CircleCheckBig />
               <span>Mark as done</span>
             </Button>
