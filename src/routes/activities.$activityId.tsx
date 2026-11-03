@@ -413,8 +413,9 @@ function EditActivityModalTitleBarContent({ onClick: onClick }: { onClick: () =>
   </>} />
 }
 
-const EditActivityModal = NiceModal.create(({ activity, modalCounter }: { activity: Activity, modalCounter: number }) => {
+const EditActivityModal = NiceModal.create(({ activity }: { activity: Activity }) => {
   const { updateActivity } = useActivityActions()
+  const { showToast } = useToast()
 
   const form = useForm({
     defaultValues: {
@@ -424,17 +425,6 @@ const EditActivityModal = NiceModal.create(({ activity, modalCounter }: { activi
   });
   const { register } = form
 
-  const reset = useCallback(() => {
-    form.reset({
-      title: activity.title,
-      tags: activity.tags.join(", "),
-    })
-  }, [activity, form])
-
-  useEffect(() => {
-    reset()
-  }, [modalCounter, reset])
-
   const modal = useModal()
   const { visible, close } = simpleModalHandler(modal)
 
@@ -443,7 +433,8 @@ const EditActivityModal = NiceModal.create(({ activity, modalCounter }: { activi
     updateActivity(activity.id, {
       title: form.getValues("title"),
       tags: form.getValues("tags").split(",").map(tag => tag.trim()),
-    });
+    })
+    showToast("Activity updated")
   }
 
   return (
