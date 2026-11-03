@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react"
 import NiceModal, { useModal } from "@ebay/nice-modal-react"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { Check, CircleCheckBig, CircleEllipsis, CircleX, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, X } from "lucide-react"
-import { Controller, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 
 import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
 import ModalView, { ConfirmationModal, simpleModalHandler } from "@/components/ModalView"
@@ -420,8 +420,7 @@ const EditActivityModal = NiceModal.create(({ activity }: { activity: Activity }
       title: activity.title,
       tags: activity.tags.join(", "),
     },
-  });
-  const { register } = form
+  })
 
   const modal = useModal()
   const { visible, close } = simpleModalHandler(modal)
@@ -449,19 +448,14 @@ const EditActivityModal = NiceModal.create(({ activity }: { activity: Activity }
         <div className="p-5">
           <form>
             <FieldGroup>
-              <Controller
-                name="title"
-                control={form.control}
-                render={({ field }) => (
-                  <Field>
-                    <FieldLabel>Title</FieldLabel>
-                    <Input placeholder="Doing homework" {...field} />
-                    <FieldDescription>Optional title for the activity.</FieldDescription>
-                  </Field>
-                )} />
+              <Field>
+                <FieldLabel>Title</FieldLabel>
+                <Input placeholder="Doing homework" {...form.register("title")} />
+                <FieldDescription>Optional title for the activity.</FieldDescription>
+              </Field>
               <Field>
                 <FieldLabel>Tags</FieldLabel>
-                <Input {...register("tags")} />
+                <Input {...form.register("tags")} />
                 <FieldDescription>Seperate tags with a comma.</FieldDescription>
               </Field>
             </FieldGroup>
