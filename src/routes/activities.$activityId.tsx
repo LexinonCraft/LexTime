@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import NiceModal, { useModal } from "@ebay/nice-modal-react"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { Check, CircleCheckBig, CircleEllipsis, CircleX, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, X } from "lucide-react"
@@ -409,18 +409,6 @@ function TitleBarContent({ onDeleteActivity }: { onDeleteActivity: () => void })
       </DropdownMenuContent>
     </DropdownMenu>
   } />
-}
-
-function EditActivityModalTitleBarContent({ onClick: onClick }: { onClick: () => void }) {
-  return <DefaultTitleBarContent title="Edit activity" leftIcons={<>
-    <Button variant="ghost" aria-label="Close" className="[&_svg]:size-6! text-primary" onClick={onClick}>
-      <X />
-    </Button>
-  </>} rightIcons={<>
-    <Button variant="ghost" aria-label="Settings" className="[&_svg]:size-6! text-primary" onClick={onClick}>
-      <Check />
-    </Button>
-  </>} />
 }
 
 const EditActivityModal = NiceModal.create(({ activity }: { activity: Activity }) => {
