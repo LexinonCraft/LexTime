@@ -131,8 +131,7 @@ function Sessions({ activityRow }: { activityRow: ActivityWithSessions }) {
   const { deleteActivitySessions } = useActivityActions()
   const { showToast } = useToast()
 
-  // eslint-disable-next-line react-hooks/purity
-  const now = useMemo(() => Date.now(), [])
+  const now = useNow()
 
   const sessionGroups = groupSessionsByStartDay(activityRow.sessions)
 
@@ -326,8 +325,7 @@ const SessionEditorModal = NiceModal.create(({
   const modal = useModal()
   const { visible, close } = simpleModalHandler(modal)
 
-  const saveSession = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const saveSession = async () => {
     const startTimestamp = new Date(startAt).getTime()
     const endTimestamp = endAt ? new Date(endAt).getTime() : null
 
@@ -355,9 +353,17 @@ const SessionEditorModal = NiceModal.create(({
       height="medium"
       show={visible}
     >
-      <TitleBarLayout titleBarContent={<EditActivityModalTitleBarContent onClick={() => { close(); }} />}>
+      <TitleBarLayout titleBarContent={<DefaultTitleBarContent title={session ? "Edit session" : "New session"} leftIcons={
+        <Button variant="ghost" aria-label="Close" className="[&_svg]:size-6! text-primary" onClick={close}>
+          <X />
+        </Button>
+      } rightIcons={
+        <Button variant="ghost" aria-label="Save" className="[&_svg]:size-6! text-primary" onClick={saveSession}>
+          <Check />
+        </Button>
+      } />}>
         <div className="p-5">
-          <form id="activity-session-form" onSubmit={(event) => void saveSession(event)}>
+          <form id="activity-session-form" onSubmit={(e) => e.preventDefault()}>
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="session-start">Start time</FieldLabel>
