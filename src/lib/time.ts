@@ -40,3 +40,14 @@ export function formatRelativeTime(timestamp: number, now = Date.now()): string 
   const diffDays = Math.floor(diffHours / 24)
   return `${diffDays}d ago`
 }
+
+export function getLocalDayKey(timestamp: number): string {
+  const date = new Date(timestamp)
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
+}
+
+export function toDateTimeLocalValue(timestamp: number): string {
+  const date = new Date(timestamp)
+  const pad = (value: number) => String(value).padStart(2, "0")
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+}

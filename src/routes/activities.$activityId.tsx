@@ -23,7 +23,8 @@ import { type ActivityWithSessions, useActivity, useActivityActions } from "@/ho
 import { useNow } from "@/hooks/useNow"
 import { useWorkItems } from "@/hooks/useWorkItems"
 import TitleBarLayout from "@/layouts/TitleBarLayout"
-import { formatDuration, formatRelativeTime, getElapsedMs } from "@/lib/time"
+import { formatSessionDay, formatSessionEnd, formatSessionTime, groupSessionsByStartDay } from "@/lib/sessions"
+import { formatDuration, formatRelativeTime, getElapsedMs, toDateTimeLocalValue } from "@/lib/time"
 import { cn } from "@/lib/utils"
 import { getPath } from "@/lib/workItems"
 import type { Activity, ActivitySession } from "@/types/domain"
@@ -263,52 +264,6 @@ function SessionTime({ label, value }: { label: string; value: string }) {
       <dd className="truncate text-sm font-medium">{value}</dd>
     </div>
   )
-}
-
-function groupSessionsByStartDay(sessions: ActivitySession[]) {
-  const groups = new Map<string, { dayKey: string; timestamp: number; sessions: ActivitySession[] }>()
-
-  for (const session of [...sessions].sort((first, second) => second.startAt - first.startAt)) {
-    const dayKey = getLocalDayKey(session.startAt)
-    const group = groups.get(dayKey) ?? { dayKey, timestamp: session.startAt, sessions: [] }
-    group.sessions.push(session)
-    groups.set(dayKey, group)
-  }
-
-  return [...groups.values()]
-}
-
-function getLocalDayKey(timestamp: number): string {
-  const date = new Date(timestamp)
-  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
-}
-
-function formatSessionDay(timestamp: number, now: number): string {
-  const date = new Date(timestamp)
-  const today = new Date(now)
-  const yesterday = new Date(now)
-  yesterday.setDate(yesterday.getDate() - 1)
-
-  if (getLocalDayKey(timestamp) === getLocalDayKey(today.getTime())) return "Today"
-  if (getLocalDayKey(timestamp) === getLocalDayKey(yesterday.getTime())) return "Yesterday"
-  return new Intl.DateTimeFormat(undefined, { dateStyle: "full" }).format(date)
-}
-
-function formatSessionTime(timestamp: number): string {
-  return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(timestamp)
-}
-
-function formatSessionEnd(startAt: number, endAt: number): string {
-  if (getLocalDayKey(startAt) !== getLocalDayKey(endAt)) {
-    return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(endAt)
-  }
-  return formatSessionTime(endAt)
-}
-
-function toDateTimeLocalValue(timestamp: number): string {
-  const date = new Date(timestamp)
-  const pad = (value: number) => String(value).padStart(2, "0")
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 
 const SessionEditorModal = NiceModal.create(({
