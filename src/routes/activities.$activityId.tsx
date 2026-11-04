@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react"
 import NiceModal, { useModal } from "@ebay/nice-modal-react"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { Check, CircleCheckBig, CircleEllipsis, CircleX, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, X } from "lucide-react"
+import { Check, ChevronLeft, CircleCheckBig, CircleEllipsis, CircleX, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, X } from "lucide-react"
 import { useForm } from "react-hook-form"
 
 import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupButton, InputGroupInput } from "@/components/ui/input-group"
 import { useToast } from "@/components/ui/toast"
 import { type ActivityWithSessions, useActivity, useActivityActions } from "@/hooks/useActivities"
+import useBack from "@/hooks/useBack"
 import { useNow } from "@/hooks/useNow"
 import { useWorkItems } from "@/hooks/useWorkItems"
 import TitleBarLayout from "@/layouts/TitleBarLayout"
@@ -46,6 +47,8 @@ function RouteComponent() {
     return items.find((item) => item.id === activityRow.activity.workItemId)
   }, [activityRow, items])
 
+  const back = useBack(undefined)
+
   if (!activityRow) {
     return (
       <div className="p-3">
@@ -58,7 +61,11 @@ function RouteComponent() {
     )
   }
 
-  return <TitleBarLayout titleBarContent={<DefaultTitleBarContent title="Activity details" rightIcons={
+  return <TitleBarLayout titleBarContent={<DefaultTitleBarContent title="Activity details" leftIcons={
+    <Button variant="ghost" aria-label="Back" className="[&_svg]:!size-6 text-primary" onClick={back}>
+      <ChevronLeft />
+    </Button>
+  } rightIcons={
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="[&_svg]:!size-6 text-primary">
