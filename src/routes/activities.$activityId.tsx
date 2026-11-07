@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react"
 import NiceModal, { useModal } from "@ebay/nice-modal-react"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { Check, ChevronLeft, CircleCheckBig, CircleEllipsis, CircleX, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, X } from "lucide-react"
+import { Check, ChevronLeft, CircleCheckBig, CircleEllipsis, CircleX, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, TriangleExclamationPoint,X } from "lucide-react"
 import { useForm } from "react-hook-form"
 
 import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
@@ -18,6 +18,7 @@ import {
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupButton, InputGroupInput } from "@/components/ui/input-group"
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item"
 import { useToast } from "@/components/ui/toast"
 import { type ActivityWithSessions, useActivity, useActivityActions } from "@/hooks/useActivities"
 import useActivityStatus from "@/hooks/useActivityStatus"
@@ -236,6 +237,15 @@ function Sessions({ activityRow }: { activityRow: ActivityWithSessions }) {
           </Button>
         </div>
       </div>
+      <Item variant="warning">
+        <ItemMedia variant="image">
+          <TriangleExclamationPoint />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle>Overlapping sessions</ItemTitle>
+          <ItemDescription>This can cause the total activity time to be inaccurate.</ItemDescription>
+        </ItemContent>
+      </Item>
       {sessionGroups.length === 0 ? (
         <p className="py-6 text-center text-sm text-muted-foreground">No sessions recorded yet.</p>
       ) : sessionGroups.map((group) => (
@@ -281,7 +291,7 @@ function SessionCard({ session, selectionMode, selectedSessionIds, toggleSession
               onChange={() => toggleSessionSelection(session.id)}
             />
           )}
-          <CardTitle className="text-sm">Tracked session</CardTitle>
+          <CardTitle className="text-sm [&_svg]:!size-5 flex flex-row items-center gap-2"><span>Tracked session</span><TriangleExclamationPoint className="text-amber-800" /></CardTitle>
         </div>
         <CardAction>
           <DropdownMenu>
