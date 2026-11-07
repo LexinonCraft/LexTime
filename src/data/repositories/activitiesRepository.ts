@@ -75,6 +75,8 @@ export async function createActivity(input: CreateActivityInput): Promise<Activi
   return activity
 }
 
+const SESSION_GAP = 5 * 1000 // TODO: allow the user to configure this in the settings
+
 export async function startActivity(activityId: string, now: number): Promise<void> {
   const activity = await db.activities.get(activityId)
   if (!activity || await isActivityRunning(activityId)) {
@@ -82,19 +84,36 @@ export async function startActivity(activityId: string, now: number): Promise<vo
   }
 
   await db.transaction("rw", db.activities, db.activitySessions, async () => {
-    await db.activities.update(activityId, {
-      updatedAt: now,
-    })
+    const justEndedSession = await db.activitySessions
+      .where("[activityId+endAt]")
+      .between([activityId, now - SESSION_GAP], [activityId, now])
+      .last()
 
-    await db.activitySessions.add({
-      id: createId("session"),
-      activityId,
-      startAt: now,
-      endAt: null,
-    })
+    if (justEndedSession) {
+      await db.activitySessions.update(justEndedSession.id, {
+        endAt: null,
+      })
+
+      return
+    } else {
+      await db.activities.update(activityId, {
+        updatedAt: now,
+      })
+
+      const newSessionId = createId("session")
+      await db.activitySessions.add({
+        id: newSessionId,
+        activityId,
+        startAt: now,
+        endAt: null,
+      })
+
+      return
+    }
   })
 
   await touchWorkItem(activity.workItemId)
+  return
 }
 
 export async function stopActivity(activityId: string, now: number): Promise<void> {
@@ -104,6 +123,16 @@ export async function stopActivity(activityId: string, now: number): Promise<voi
   }
 
   await db.transaction("rw", db.activities, db.activitySessions, async () => {
+    const justStartedSession = await db.activitySessions
+      .where("[activityId+startAt]")
+      .between([activityId, now - SESSION_GAP], [activityId, now])
+      .filter((session) => session.endAt === null)
+      .last()
+
+    if (justStartedSession) {
+      await db.activitySessions.delete(justStartedSession.id)
+    }
+
     await db.activitySessions
       .where("activityId")
       .equals(activityId)
