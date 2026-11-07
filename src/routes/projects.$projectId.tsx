@@ -191,9 +191,9 @@ function RouteComponent() {
               title={activity.title || item.title}
               subtitle={`Tracked ${formatDuration(getElapsedMs(activity, sessions, now))}`}
               tags={activity.tags}
-              state={activity.state}
+              state={"running"}
               onToggleRunning={async () => {
-                if (activity.state === "running") {
+                if (activity.id == "1") { // TODO
                   await stopActivity(activity.id)
                   showToast("Activity paused")
                 } else {

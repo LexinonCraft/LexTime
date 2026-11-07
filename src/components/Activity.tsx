@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ActivityState } from "@/types/domain";
+import type { ActivityState } from "@/hooks/useActivityStatus";
 
 interface ActivityProps {
     id?: string

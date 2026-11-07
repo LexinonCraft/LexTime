@@ -1,3 +1,4 @@
+
 import { touchWorkItem } from "@/data/repositories/workItemsRepository"
 import { db } from "@/lib/db"
 import { createId } from "@/lib/id"
@@ -45,7 +46,6 @@ export async function createActivity(input: CreateActivityInput): Promise<Activi
     workItemId: input.workItemId,
     title: input.title?.trim() ?? "",
     tags: normalizeTags(input.tags ?? []),
-    state: startNow ? "running" : "not_running",
     createdAt: now,
     updatedAt: now,
   }
@@ -77,7 +77,7 @@ export async function createActivity(input: CreateActivityInput): Promise<Activi
 
 export async function startActivity(activityId: string): Promise<void> {
   const activity = await db.activities.get(activityId)
-  if (!activity || activity.state === "running") {
+  if (!activity || await isActivityRunning(activityId)) {
     return
   }
 
@@ -85,7 +85,6 @@ export async function startActivity(activityId: string): Promise<void> {
 
   await db.transaction("rw", db.activities, db.activitySessions, async () => {
     await db.activities.update(activityId, {
-      state: "running",
       updatedAt: now,
     })
 
@@ -102,30 +101,43 @@ export async function startActivity(activityId: string): Promise<void> {
 
 export async function stopActivity(activityId: string): Promise<void> {
   const activity = await db.activities.get(activityId)
-  if (!activity || activity.state !== "running") {
+  if (!activity || !await isActivityRunning(activityId)) {
     return
   }
 
   const now = Date.now()
 
-  const openSession = await db.activitySessions
-    .where("activityId")
-    .equals(activityId)
-    .filter((session) => session.endAt === null)
-    .last()
-
   await db.transaction("rw", db.activities, db.activitySessions, async () => {
-    if (openSession) {
-      await db.activitySessions.update(openSession.id, { endAt: now })
-    }
+    await db.activitySessions
+      .where("activityId")
+      .equals(activityId)
+      .and((session) => session.endAt === null)
+      .modify({ endAt: now })
 
     await db.activities.update(activityId, {
-      state: "not_running",
       updatedAt: now,
     })
   })
 
   await touchWorkItem(activity.workItemId)
+}
+
+/*
+export async function getMostRecentActivitySession(activityId: string): Promise<ActivitySession | undefined> {
+  return db.activitySessions
+    .where("[activityId+startAt]")
+    .between([activityId, Dexie.minKey], [activityId, Dexie.maxKey])
+    .last()
+}
+    */
+
+export async function isActivityRunning(activityId: string): Promise<boolean> {
+  const count = await db.activitySessions
+    .where("activityId")
+    .equals(activityId)
+    .and((session) => session.endAt === null)
+    .count()
+  return count > 0
 }
 
 export async function addActivitySession(
@@ -171,13 +183,7 @@ export async function updateActivitySession(
 
   await db.transaction("rw", db.activities, db.activitySessions, async () => {
     await db.activitySessions.update(sessionId, changes)
-    const hasOpenSession = await db.activitySessions
-      .where("activityId")
-      .equals(activityId)
-      .filter((currentSession) => currentSession.endAt === null)
-      .count()
     await db.activities.update(activityId, {
-      state: hasOpenSession > 0 ? "running" : "not_running",
       updatedAt: now,
     })
   })
@@ -201,15 +207,7 @@ export async function deleteActivitySessions(activityId: string, sessionIds: str
 
   await db.transaction("rw", db.activities, db.activitySessions, async () => {
     await db.activitySessions.bulkDelete(activitySessions.map((session) => session.id))
-    const hasOpenSession = await db.activitySessions
-      .where("activityId")
-      .equals(activityId)
-      .filter((session) => session.endAt === null)
-      .count()
     await db.activities.update(activityId, {
-      ...(activity.state === "running" || activitySessions.some((session) => session.endAt === null)
-        ? { state: hasOpenSession > 0 ? "running" as const : "not_running" as const }
-        : {}),
       updatedAt: now,
     })
   })
