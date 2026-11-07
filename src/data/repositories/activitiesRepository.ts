@@ -122,15 +122,6 @@ export async function stopActivity(activityId: string): Promise<void> {
   await touchWorkItem(activity.workItemId)
 }
 
-/*
-export async function getMostRecentActivitySession(activityId: string): Promise<ActivitySession | undefined> {
-  return db.activitySessions
-    .where("[activityId+startAt]")
-    .between([activityId, Dexie.minKey], [activityId, Dexie.maxKey])
-    .last()
-}
-    */
-
 export async function isActivityRunning(activityId: string): Promise<boolean> {
   const count = await db.activitySessions
     .where("activityId")
