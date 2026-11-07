@@ -11,14 +11,11 @@ export interface WorkItem {
   updatedAt: number
 }
 
-export type ActivityState = "running" | "not_running"
-
 export interface Activity {
   id: string
   workItemId: string
   title: string
   tags: string[]
-  state: ActivityState
   createdAt: number
   updatedAt: number
 }

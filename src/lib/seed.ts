@@ -55,7 +55,6 @@ export async function ensureSeedData(): Promise<void> {
       workItemId: sheetId,
       title: "Morning focus block",
       tags: ["home"],
-      state: "not_running",
       createdAt: now - 3_000_000,
       updatedAt: now - 1_200_000,
     },

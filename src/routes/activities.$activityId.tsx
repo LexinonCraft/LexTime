@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupButton, InputGroupInput } from "@/components/ui/input-group"
 import { useToast } from "@/components/ui/toast"
 import { type ActivityWithSessions, useActivity, useActivityActions } from "@/hooks/useActivities"
+import useActivityStatus from "@/hooks/useActivityStatus"
 import useBack from "@/hooks/useBack"
 import { useNow } from "@/hooks/useNow"
 import { useWorkItems } from "@/hooks/useWorkItems"
@@ -94,7 +95,7 @@ function ElapsedTime({ activityRow }: { activityRow: ActivityWithSessions }) {
   const elapsedMs = getElapsedMs(activityRow.activity, activityRow.sessions, now)
   return (
     <div className="flex items-center justify-center w-full h-50">
-      <span className="text-3xl">{formatDuration(elapsedMs)}</span>
+      <span className="text-3xl">{formatDuration(elapsedMs, true)}</span>
     </div>
   )
 }
@@ -103,6 +104,7 @@ function ActivityHeader({ activityRow, linkedItem }: { activityRow: ActivityWith
   const now = useNow()
   const { showToast } = useToast()
   const { startActivity, stopActivity } = useActivityActions()
+  const activityState = useActivityStatus(activityRow.activity.id)
 
   return (
     <Card>
@@ -118,8 +120,8 @@ function ActivityHeader({ activityRow, linkedItem }: { activityRow: ActivityWith
       <CardFooter className="flex flex-row gap-2 items-stretch h-20">
         <Button variant="default" className={cn(
           "flex-1 flex h-full [&_svg]:size-6!",
-          activityRow.activity.state !== "running" ? "text-green-800 bg-green-200" : "text-black bg-gray-200"
-        )} disabled={activityRow.activity.state === "running"} onClick={async () => {
+          activityState == "not_running" ? "text-green-800 bg-green-200" : "text-black bg-gray-200"
+        )} disabled={activityState === "running"} onClick={async () => {
           await startActivity(activityRow.activity.id)
           showToast("Activity started")
         }}>
@@ -127,8 +129,8 @@ function ActivityHeader({ activityRow, linkedItem }: { activityRow: ActivityWith
         </Button>
         <Button variant="secondary" className={cn(
           "flex-1 flex h-full [&_svg]:size-6!",
-          activityRow.activity.state === "running" ? "text-orange-800 bg-orange-200" : "text-black bg-gray-200"
-        )} disabled={activityRow.activity.state !== "running"} onClick={async () => {
+          activityState == "running" ? "text-orange-800 bg-orange-200" : "text-black bg-gray-200"
+        )} disabled={activityState !== "running"} onClick={async () => {
           await stopActivity(activityRow.activity.id)
           showToast("Activity stopped")
         }}>
