@@ -8,7 +8,7 @@ import { useToast } from '@/components/ui/toast'
 import { useActivityActions, useRecentActivities } from '@/hooks/useActivities'
 import { useNow } from '@/hooks/useNow'
 import { useRecentlyUpdatedWorkItems, useWorkItems } from '@/hooks/useWorkItems'
-import { formatDuration, formatRelativeTime, getElapsedMs } from '@/lib/time'
+import { formatDuration, formatRelativeTime } from '@/lib/time'
 import type { WorkItemStatus } from '@/types/domain'
 
 export const Route = createFileRoute('/')({
@@ -20,7 +20,7 @@ function RouteComponent() {
   const items = useWorkItems()
   const recentItems = useRecentlyUpdatedWorkItems(8)
   const recentActivities = useRecentActivities(8)
-  const { createActivity, startActivity, stopActivity } = useActivityActions()
+  const { createActivity } = useActivityActions()
   const { showToast } = useToast()
 
   const itemMap = new Map(items.map((item) => [item.id, item]))
@@ -46,9 +46,9 @@ function RouteComponent() {
         </Card>
       )}
 
-      {recentActivities.map(({ activity, sessions }) => {
+      {recentActivities.map(({ activity }) => {
         const linkedItem = itemMap.get(activity.workItemId)
-        const durationLabel = formatDuration(getElapsedMs(activity, sessions, now))
+        const durationLabel = formatDuration(42000 /* TODO */)
 
         return (
           <Activity
@@ -60,10 +60,10 @@ function RouteComponent() {
             state={"not_running"}
             onToggleRunning={async () => {
               if (activity.id == "1") { // TODO
-                await stopActivity(activity.id)
+                // await stopActivity(activity.id) TODO
                 showToast("Activity paused")
               } else {
-                await startActivity(activity.id)
+                // await startActivity(activity.id) TODO
                 showToast("Activity started")
               }
             }}

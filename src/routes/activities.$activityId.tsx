@@ -22,11 +22,12 @@ import { useToast } from "@/components/ui/toast"
 import { type ActivityWithSessions, useActivity, useActivityActions } from "@/hooks/useActivities"
 import useActivityStatus from "@/hooks/useActivityStatus"
 import useBack from "@/hooks/useBack"
+import useElapsedTime from "@/hooks/useElapsedTime"
 import { useNow } from "@/hooks/useNow"
 import { useWorkItems } from "@/hooks/useWorkItems"
 import TitleBarLayout from "@/layouts/TitleBarLayout"
 import { formatSessionDay, formatSessionEnd, formatSessionTime, groupSessionsByStartDay } from "@/lib/sessions"
-import { formatDuration, formatRelativeTime, getElapsedMs, toDateTimeLocalValue } from "@/lib/time"
+import { formatDuration, formatRelativeTime, toDateTimeLocalValue } from "@/lib/time"
 import { cn } from "@/lib/utils"
 import { getPath } from "@/lib/workItems"
 import type { Activity, ActivitySession, WorkItem } from "@/types/domain"
@@ -91,8 +92,7 @@ function RouteComponent() {
 }
 
 function ElapsedTime({ activityRow }: { activityRow: ActivityWithSessions }) {
-  const now = useNow()
-  const elapsedMs = getElapsedMs(activityRow.activity, activityRow.sessions, now)
+  const elapsedMs = useElapsedTime(activityRow.activity.id)
   return (
     <div className="flex items-center justify-center w-full h-50">
       <span className="text-3xl">{formatDuration(elapsedMs, true)}</span>
@@ -122,7 +122,7 @@ function ActivityHeader({ activityRow, linkedItem }: { activityRow: ActivityWith
           "flex-1 flex h-full [&_svg]:size-6!",
           activityState == "not_running" ? "text-green-800 bg-green-200" : "text-black bg-gray-200"
         )} disabled={activityState === "running"} onClick={async () => {
-          await startActivity(activityRow.activity.id)
+          await startActivity(activityRow.activity.id, now)
           showToast("Activity started")
         }}>
           <StepForward />
@@ -131,7 +131,7 @@ function ActivityHeader({ activityRow, linkedItem }: { activityRow: ActivityWith
           "flex-1 flex h-full [&_svg]:size-6!",
           activityState == "running" ? "text-orange-800 bg-orange-200" : "text-black bg-gray-200"
         )} disabled={activityState !== "running"} onClick={async () => {
-          await stopActivity(activityRow.activity.id)
+          await stopActivity(activityRow.activity.id, now)
           showToast("Activity stopped")
         }}>
           <Pause />

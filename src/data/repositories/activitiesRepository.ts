@@ -75,13 +75,11 @@ export async function createActivity(input: CreateActivityInput): Promise<Activi
   return activity
 }
 
-export async function startActivity(activityId: string): Promise<void> {
+export async function startActivity(activityId: string, now: number): Promise<void> {
   const activity = await db.activities.get(activityId)
   if (!activity || await isActivityRunning(activityId)) {
     return
   }
-
-  const now = Date.now()
 
   await db.transaction("rw", db.activities, db.activitySessions, async () => {
     await db.activities.update(activityId, {
@@ -99,13 +97,11 @@ export async function startActivity(activityId: string): Promise<void> {
   await touchWorkItem(activity.workItemId)
 }
 
-export async function stopActivity(activityId: string): Promise<void> {
+export async function stopActivity(activityId: string, now: number): Promise<void> {
   const activity = await db.activities.get(activityId)
   if (!activity || !await isActivityRunning(activityId)) {
     return
   }
-
-  const now = Date.now()
 
   await db.transaction("rw", db.activities, db.activitySessions, async () => {
     await db.activitySessions

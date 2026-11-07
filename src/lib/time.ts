@@ -1,15 +1,3 @@
-import type { Activity, ActivitySession } from "@/types/domain"
-
-export function getElapsedMs(
-  activity: Activity,
-  sessions: ActivitySession[],
-  now = Date.now(),
-): number {
-  return sessions
-    .filter((session) => session.activityId === activity.id)
-    .reduce((sum, session) => sum + (session.endAt ?? now) - session.startAt, 0)
-}
-
 export function formatDuration(ms: number, full: boolean = false): string {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000))
   const hours = Math.floor(totalSeconds / 3600)

@@ -10,10 +10,9 @@ import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle }
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/components/ui/toast"
 import { useActivities, useActivityActions } from "@/hooks/useActivities"
-import { useNow } from "@/hooks/useNow"
 import { useWorkItem, useWorkItemActions, useWorkItems } from "@/hooks/useWorkItems"
 import TitleBarLayout from "@/layouts/TitleBarLayout"
-import { formatDuration, getElapsedMs } from "@/lib/time"
+import { formatDuration } from "@/lib/time"
 import { getDirectChildren, getPath } from "@/lib/workItems"
 import type { WorkItemStatus } from "@/types/domain"
 
@@ -41,7 +40,6 @@ function titleBarRightIcons() {
 function RouteComponent() {
   const { projectId } = Route.useParams()
   const navigate = useNavigate()
-  const now = useNow()
 
   const item = useWorkItem(projectId)
   const allItems = useWorkItems()
@@ -49,7 +47,7 @@ function RouteComponent() {
   const { showToast } = useToast()
 
   const { setWorkItemStatus, updateWorkItem } = useWorkItemActions()
-  const { createActivity, startActivity, stopActivity } = useActivityActions()
+  const { createActivity } = useActivityActions()
 
   const [editingMetadata, setEditingMetadata] = useState(false)
 
@@ -184,20 +182,20 @@ function RouteComponent() {
         </CardHeader>
         <CardContent className="space-y-3">
           {relatedActivities.length === 0 && <p className="text-sm text-muted-foreground">No activities yet.</p>}
-          {relatedActivities.map(({ activity, sessions }) => (
+          {relatedActivities.map(({ activity }) => (
             <Activity
               key={activity.id}
               id={activity.id}
               title={activity.title || item.title}
-              subtitle={`Tracked ${formatDuration(getElapsedMs(activity, sessions, now))}`}
+              subtitle={`Tracked ${formatDuration(42000 /* TODO */)}`}
               tags={activity.tags}
               state={"running"}
               onToggleRunning={async () => {
                 if (activity.id == "1") { // TODO
-                  await stopActivity(activity.id)
+                  // await stopActivity(activity.id) TODO
                   showToast("Activity paused")
                 } else {
-                  await startActivity(activity.id)
+                  // await startActivity(activity.id) TODO
                   showToast("Activity started")
                 }
               }}
