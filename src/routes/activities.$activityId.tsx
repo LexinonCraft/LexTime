@@ -4,6 +4,7 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { useLiveQuery } from "dexie-react-hooks"
 import { Check, ChevronLeft, CircleCheckBig, CircleEllipsis, CircleX, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, TriangleExclamationPoint,X } from "lucide-react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
 import ModalView, { ConfirmationModal, simpleModalHandler } from "@/components/ModalView"
@@ -53,20 +54,21 @@ function RouteComponent() {
   }, [activityRow, items])
 
   const back = useBack(undefined)
+  const { t } = useTranslation()
 
   if (!activityRow) {
     return (
       <div className="p-3">
         <Card>
           <CardHeader>
-            <CardTitle>Activity not found</CardTitle>
+            <CardTitle>{t("activity.detailsView.notFound")}</CardTitle>
           </CardHeader>
         </Card>
       </div>
     )
   }
 
-  return <TitleBarLayout titleBarContent={<DefaultTitleBarContent title="Activity details" leftIcons={
+  return <TitleBarLayout titleBarContent={<DefaultTitleBarContent title={t("activity.detailsView.title")} leftIcons={
     <Button variant="ghost" aria-label="Back" className="[&_svg]:!size-6 text-primary" onClick={back}>
       <ChevronLeft />
     </Button>
@@ -80,7 +82,7 @@ function RouteComponent() {
       <DropdownMenuContent>
         <DropdownMenuItem variant="destructive" onClick={() => NiceModal.show(DeleteActivityConfirmationModal, { activityId: activityRow.activity.id })}>
           <Trash2 />
-          Delete activity
+          {t("generic.delete")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -108,13 +110,14 @@ function ActivityHeader({ activityRow, linkedItem }: { activityRow: ActivityWith
   const { showToast } = useToast()
   const { startActivity, stopActivity } = useActivityActions()
   const activityState = useActivityStatus(activityRow.activity.id)
+  const { t } = useTranslation()
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>{activityRow.activity.title || linkedItem?.title || "Untitled activity"}</CardTitle>
         <CardDescription>
-          updated {formatRelativeTime(activityRow.activity.updatedAt, now)}
+          {t("generic.updatedAt", { time: formatRelativeTime(activityRow.activity.updatedAt, now, t) })}
         </CardDescription>
         <CardAction>
           <Button variant="secondary" onClick={() => NiceModal.show(EditActivityModal, { activity: activityRow.activity })}><Pencil className="text-primary" /></Button>
@@ -126,7 +129,7 @@ function ActivityHeader({ activityRow, linkedItem }: { activityRow: ActivityWith
           activityState == "not_running" ? "text-green-800 bg-green-200" : "text-black bg-gray-200"
         )} disabled={activityState === "running"} onClick={async () => {
           await startActivity(activityRow.activity.id, now)
-          showToast("Activity started")
+          showToast(t("activity.toast.started"))
         }}>
           <StepForward />
         </Button>
@@ -135,7 +138,7 @@ function ActivityHeader({ activityRow, linkedItem }: { activityRow: ActivityWith
           activityState == "running" ? "text-orange-800 bg-orange-200" : "text-black bg-gray-200"
         )} disabled={activityState !== "running"} onClick={async () => {
           await stopActivity(activityRow.activity.id, now)
-          showToast("Activity stopped")
+          showToast(t("activity.toast.stopped"))
         }}>
           <Pause />
         </Button>
@@ -146,9 +149,10 @@ function ActivityHeader({ activityRow, linkedItem }: { activityRow: ActivityWith
 
 function LinkedItem({ activityRow, linkedItem }: { activityRow: ActivityWithSessions, linkedItem: WorkItem }) {
   const items = useWorkItems()
+  const { t } = useTranslation()
 
   return (<>
-    <h2 className="text-base font-semibold -mb-2.5">Related work item</h2>
+    <h2 className="text-base font-semibold -mb-2.5">{t("activity.detailsView.relatedItemLabel")}</h2>
     <Card key={linkedItem.id}>
       <Link to="/projects/$projectId" params={{ projectId: linkedItem.id }} key={linkedItem.id} className="no-underline">
         <CardHeader>
@@ -163,7 +167,7 @@ function LinkedItem({ activityRow, linkedItem }: { activityRow: ActivityWithSess
       <CardFooter className="flex flex-row gap-2 items-stretch h-20">
         <Button variant="default" className="flex-1 flex h-full [&_svg]:size-6!" onClick={() => window.alert("Not implemented yet!")}>
           <CircleCheckBig />
-          <span>Mark as done</span>
+          <span>{t("workItem.card.markAsDone")}</span>
         </Button>
       </CardFooter>
     </Card>
@@ -353,6 +357,7 @@ function SessionTime({ label, value }: { label: string; value: string }) {
 const EditActivityModal = NiceModal.create(({ activity }: { activity: Activity }) => {
   const { updateActivity } = useActivityActions()
   const { showToast } = useToast()
+  const { t } = useTranslation()
 
   const form = useForm({
     defaultValues: {
@@ -370,12 +375,12 @@ const EditActivityModal = NiceModal.create(({ activity }: { activity: Activity }
       title: form.getValues("title"),
       tags: form.getValues("tags").split(",").map(tag => tag.trim()),
     })
-    showToast("Activity updated")
+    showToast(t("activity.toast.updated"))
   }
 
   return (
     <ModalView height="medium" show={visible}>
-      <TitleBarLayout titleBarContent={<DefaultTitleBarContent title="Edit activity" leftIcons={<>
+      <TitleBarLayout titleBarContent={<DefaultTitleBarContent title={t("activity.editor.modalTitle")} leftIcons={<>
         <Button variant="ghost" aria-label="Close" className="[&_svg]:size-6! text-primary" onClick={close}>
           <X />
         </Button>
@@ -388,14 +393,14 @@ const EditActivityModal = NiceModal.create(({ activity }: { activity: Activity }
           <form>
             <FieldGroup>
               <Field>
-                <FieldLabel>Title</FieldLabel>
+                <FieldLabel>{t("activity.editor.activityTitleLabel")}</FieldLabel>
                 <Input placeholder="Doing homework" {...form.register("title")} />
-                <FieldDescription>Optional title for the activity.</FieldDescription>
+                <FieldDescription>{t("activity.editor.activityTitleDescription")}</FieldDescription>
               </Field>
               <Field>
-                <FieldLabel>Tags</FieldLabel>
+                <FieldLabel>{t("activity.editor.tagsLabel")}</FieldLabel>
                 <Input {...form.register("tags")} />
-                <FieldDescription>Seperate tags with a comma.</FieldDescription>
+                <FieldDescription>{t("activity.editor.tagsDescription")}</FieldDescription>
               </Field>
             </FieldGroup>
           </form>
@@ -450,11 +455,6 @@ const SessionEditorModal = NiceModal.create(({
   const saveSession = useCallback(async () => {
     const startTimestamp = new Date(form.getValues("startAt")).getTime()
     const endTimestamp = form.getValues("endAt") ? new Date(form.getValues("endAt")).getTime() : null
-
-    if (!Number.isFinite(startTimestamp) || (endTimestamp !== null && (!Number.isFinite(endTimestamp) || endTimestamp < startTimestamp))) {
-      showToast("End time must be after start time")
-      return
-    }
 
     try {
       close()

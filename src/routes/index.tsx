@@ -58,7 +58,7 @@ function RouteComponent() {
             key={activity.id}
             id={activity.id}
             title={activity.title || linkedItem?.title || "Untitled activity"}
-            subtitle={`Tracked ${durationLabel} - updated ${formatRelativeTime(activity.updatedAt, now)}`}
+            subtitle={`Tracked ${durationLabel} - updated ${formatRelativeTime(activity.updatedAt, now, t)}`}
             tags={activity.tags}
             state={"not_running"}
             onToggleRunning={async () => {

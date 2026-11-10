@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 
 import { ConfirmationModal } from '@/components/ModalView'
 import { Button } from '@/components/ui/button'
@@ -14,6 +15,7 @@ export const Route = createFileRoute('/settings')({
 })
 
 function RouteComponent() {
+  const { t } = useTranslation()
   const settings = useSettings()
   const { reseedDatabase, updateLanguage } = useSettingsActions()
   const [busy, setBusy] = useState(false)
@@ -42,7 +44,7 @@ function RouteComponent() {
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm text-muted-foreground">
-          Last seeded: {settings.autoSeededAt ? formatRelativeTime(settings.autoSeededAt) : "never"}
+          Last seeded: {settings.autoSeededAt ? formatRelativeTime(settings.autoSeededAt, undefined, t) : "never"}
         </p>
         <Button className="w-full" variant="destructive" disabled={busy} onClick={() => setShowReseedModal(true)}>
           {busy ? "Resetting..." : "Reset and reseed local database"}

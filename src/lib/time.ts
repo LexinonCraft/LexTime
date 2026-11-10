@@ -1,3 +1,5 @@
+import type { TFunction } from "i18next"
+
 export function formatDuration(ms: number, full: boolean = false): string {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000))
   const hours = Math.floor(totalSeconds / 3600)
@@ -15,18 +17,18 @@ export function formatDuration(ms: number, full: boolean = false): string {
   return `${seconds}s`
 }
 
-export function formatRelativeTime(timestamp: number, now = Date.now()): string {
+export function formatRelativeTime(timestamp: number, now = Date.now(), t: TFunction<"translation">): string {
   const diffMs = Math.max(0, now - timestamp)
   const diffMin = Math.floor(diffMs / 60000)
 
-  if (diffMin < 1) return "just now"
-  if (diffMin < 60) return `${diffMin}m ago`
+  if (diffMin < 1) return t("generic.justNow")
+  if (diffMin < 60) return t("generic.minutesAgo", { time: diffMin })
 
   const diffHours = Math.floor(diffMin / 60)
-  if (diffHours < 24) return `${diffHours}h ago`
+  if (diffHours < 24) return t("generic.hoursAgo", { time: diffHours })
 
   const diffDays = Math.floor(diffHours / 24)
-  return `${diffDays}d ago`
+  return t("generic.daysAgo", { time: diffDays })
 }
 
 export function getLocalDayKey(timestamp: number): string {
