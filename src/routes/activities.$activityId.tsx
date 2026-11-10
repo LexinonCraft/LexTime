@@ -1,6 +1,7 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import NiceModal, { useModal } from "@ebay/nice-modal-react"
 import { createFileRoute, Link } from "@tanstack/react-router"
+import { useLiveQuery } from "dexie-react-hooks"
 import { Check, ChevronLeft, CircleCheckBig, CircleEllipsis, CircleX, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, TriangleExclamationPoint,X } from "lucide-react"
 import { useForm } from "react-hook-form"
 
@@ -20,6 +21,7 @@ import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupButton, InputGroupInput } from "@/components/ui/input-group"
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item"
 import { useToast } from "@/components/ui/toast"
+import { checkSessionIntegrity, getSessionIntegrityViolations } from "@/data/repositories/activitiesRepository"
 import { type ActivityWithSessions, useActivity, useActivityActions } from "@/hooks/useActivities"
 import useActivityStatus from "@/hooks/useActivityStatus"
 import useBack from "@/hooks/useBack"
@@ -177,6 +179,8 @@ function Sessions({ activityRow }: { activityRow: ActivityWithSessions }) {
 
   const now = useNow()
 
+  const violatingSessionsIds = useLiveQuery(() => getSessionIntegrityViolations(activityRow.activity.id, now), [activityRow.activity.id], new Set())
+
   const sessionGroups = groupSessionsByStartDay(activityRow.sessions)
 
   const openSessionEditor = (session?: ActivitySession) => {
@@ -237,15 +241,17 @@ function Sessions({ activityRow }: { activityRow: ActivityWithSessions }) {
           </Button>
         </div>
       </div>
-      <Item variant="warning">
-        <ItemMedia variant="image">
-          <TriangleExclamationPoint />
-        </ItemMedia>
-        <ItemContent>
-          <ItemTitle>Overlapping sessions</ItemTitle>
-          <ItemDescription>This can cause the total activity time to be inaccurate.</ItemDescription>
-        </ItemContent>
-      </Item>
+      {violatingSessionsIds.size > 0 && (
+        <Item variant="warning">
+          <ItemMedia variant="image">
+            <TriangleExclamationPoint />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>Session integrity violations</ItemTitle>
+            <ItemDescription>Every session marked with a warning icon is overlapping with the next session or has invalid start/end times.</ItemDescription>
+          </ItemContent>
+        </Item>
+      )}
       {sessionGroups.length === 0 ? (
         <p className="py-6 text-center text-sm text-muted-foreground">No sessions recorded yet.</p>
       ) : sessionGroups.map((group) => (
@@ -260,6 +266,7 @@ function Sessions({ activityRow }: { activityRow: ActivityWithSessions }) {
                 toggleSessionSelection={toggleSessionSelection}
                 openSessionEditor={openSessionEditor}
                 removeSessions={removeSessions}
+                warning={violatingSessionsIds.has(session.id)}
               />
             ))}
           </div>
@@ -269,13 +276,14 @@ function Sessions({ activityRow }: { activityRow: ActivityWithSessions }) {
   )
 }
 
-function SessionCard({ session, selectionMode, selectedSessionIds, toggleSessionSelection, openSessionEditor, removeSessions }: {
+function SessionCard({ session, selectionMode, selectedSessionIds, toggleSessionSelection, openSessionEditor, removeSessions, warning }: {
   session: ActivitySession
   selectionMode: boolean
   selectedSessionIds: string[]
   toggleSessionSelection: (sessionId: string) => void
   openSessionEditor: (session: ActivitySession) => void
   removeSessions: (sessionIds: string[]) => void
+  warning: boolean
 }) {
   const now = useNow()
 
@@ -291,7 +299,10 @@ function SessionCard({ session, selectionMode, selectedSessionIds, toggleSession
               onChange={() => toggleSessionSelection(session.id)}
             />
           )}
-          <CardTitle className="text-sm [&_svg]:!size-5 flex flex-row items-center gap-2"><span>Tracked session</span><TriangleExclamationPoint className="text-amber-800" /></CardTitle>
+          <CardTitle className="text-sm [&_svg]:!size-5 flex flex-row items-center gap-2">
+            <span>Tracked session</span>
+            {warning && <TriangleExclamationPoint className="text-amber-800" />}
+          </CardTitle>
         </div>
         <CardAction>
           <DropdownMenu>
@@ -446,6 +457,7 @@ const SessionEditorModal = NiceModal.create(({
     }
 
     try {
+      close()
       if (session) {
         await updateActivitySession(activityId, session.id, { startAt: startTimestamp, endAt: endTimestamp })
         showToast("Session updated")
@@ -453,11 +465,22 @@ const SessionEditorModal = NiceModal.create(({
         await addActivitySession(activityId, { startAt: startTimestamp, endAt: endTimestamp })
         showToast("Session added")
       }
-      close()
     } catch {
       showToast("Unable to save session")
     }
   }, [form, session, activityId, addActivitySession, updateActivitySession, showToast, close])
+
+  const startAt = form.watch("startAt")
+  const endAt = form.watch("endAt")
+
+  const now = useNow()
+  const liveSessionIntegrity = useLiveQuery(() => checkSessionIntegrity({ sessionId: session && session.id, activityId: activityId, startAt: new Date(startAt).getTime(), endAt: endAt ? new Date(endAt).getTime() : undefined }, now), [session, startAt, endAt])
+  const [sessionIntegrity, setSessionIntegrity] = useState(liveSessionIntegrity)
+  useEffect(() => {
+    if (modal.visible) {
+      setSessionIntegrity(liveSessionIntegrity)
+    }
+  }, [liveSessionIntegrity, modal.visible])
 
   return (
     <ModalView
@@ -473,7 +496,7 @@ const SessionEditorModal = NiceModal.create(({
           <Check />
         </Button>
       } />}>
-        <div className="p-5">
+        <div className="p-5 flex flex-col gap-2">
           <form id="activity-session-form" onSubmit={(e) => { e.preventDefault(); saveSession(); }}>
             <FieldGroup>
               <Field>
@@ -485,13 +508,38 @@ const SessionEditorModal = NiceModal.create(({
                 <InputGroup>
                   <InputGroupInput id="session-end" type="datetime-local" {...form.register("endAt")} />
                   <InputGroupButton onClick={() => form.setValue("endAt", "")}>
-                    <CircleX className={form.watch("endAt") !== "" ? "text-primary" : "text-muted-foreground"} />
+                    <CircleX className={endAt !== "" ? "text-primary" : "text-muted-foreground"} />
                   </InputGroupButton>
                 </InputGroup>
                 <FieldDescription>Leave blank for a session that is still running.</FieldDescription>
               </Field>
             </FieldGroup>
           </form>
+          {sessionIntegrity?.overlappingSession && (
+            <Item variant="warning">
+              <ItemMedia variant="image">
+                <TriangleExclamationPoint />
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>Overlapping sessions</ItemTitle>
+                <ItemDescription>This session overlaps with a session that starts at {new Date(sessionIntegrity.overlappingSession.start).toLocaleString()} and {sessionIntegrity.overlappingSession.end ? `ends at ${new Date(sessionIntegrity.overlappingSession.end).toLocaleString()}` : "is still running"}.</ItemDescription>
+              </ItemContent>
+            </Item>
+          )}
+          {sessionIntegrity?.startEndOrder && sessionIntegrity.startEndOrder !== "valid" && (
+            <Item variant="warning">
+              <ItemMedia variant="image">
+                <TriangleExclamationPoint />
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>Invalid session timing</ItemTitle>
+                <ItemDescription>
+                  {sessionIntegrity.startEndOrder === "end_before_start" && "The end time is before the start time."}
+                  {sessionIntegrity.startEndOrder === "now_before_start" && "The session is running and the start time is in the future."}
+                </ItemDescription>
+              </ItemContent>
+            </Item>
+          )}
         </div>
       </TitleBarLayout>
     </ModalView>
