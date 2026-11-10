@@ -31,6 +31,7 @@ export interface AppSettings {
   id: "app"
   autoSeededAt: number | null
   updatedAt: number
+  language: string
 }
 
 export interface SeedState {

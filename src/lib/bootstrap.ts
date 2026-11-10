@@ -17,6 +17,7 @@ export function ensureDbInitialized(): Promise<void> {
         id: "app",
         autoSeededAt: null,
         updatedAt: Date.now(),
+        language: "en"
       })
     }
 

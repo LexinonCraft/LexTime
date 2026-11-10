@@ -45,5 +45,6 @@ export async function resetDatabase(): Promise<void> {
     id: "app",
     autoSeededAt: null,
     updatedAt: Date.now(),
+    language: "en"
   })
 }
