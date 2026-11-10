@@ -1,0 +1,21 @@
+{
+    "test": "Dies ist ein Test",
+    "activity.detailsView.notFound": "Aktivität konnte nicht gefunden werden",
+    "activity.detailsView.title": "Aktivität",
+    "activity.detailsView.relatedItemLabel": "Zugehöriges Work-Item",
+    "activity.editor.modalTitle": "Aktivität bearbeiten",
+    "activity.editor.activityTitleLabel": "Titel",
+    "activity.editor.activityTitleDescription": "Optionaler Titel für die Aktivität.",
+    "activity.editor.tagsLabel": "Tags",
+    "activity.editor.tagsDescription": "Trenne Tags mit einem Komma.",
+    "activity.toast.started": "Aktivität gestartet",
+    "activity.toast.stopped": "Aktivität gestoppt",
+    "activity.toast.updated": "Aktivität aktualisiert",
+    "workItem.card.markAsDone": "Als erledigt markieren",
+    "generic.updatedAt": "{{time}} aktualisiert",
+    "generic.delete": "Löschen",
+    "generic.justNow": "gerade eben",
+    "generic.minutesAgo": "vor {{time}} Minuten",
+    "generic.hoursAgo": "vor {{time}} Stunden",
+    "generic.daysAgo": "vor {{time}} Tagen"
+}

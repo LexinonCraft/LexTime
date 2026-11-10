@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Settings } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import Activity from '@/components/Activity'
 import { Button } from '@/components/ui/button'
@@ -22,6 +23,7 @@ function RouteComponent() {
   const recentActivities = useRecentActivities(8)
   const { createActivity } = useActivityActions()
   const { showToast } = useToast()
+  const { t } = useTranslation()
 
   const itemMap = new Map(items.map((item) => [item.id, item]))
 
@@ -36,6 +38,7 @@ function RouteComponent() {
     </div>
 
     <h2 className="my-3 text-2xl font-bold">Recent activities</h2>
+    <span>{t('test')}</span>
     <div className="space-y-3">
       {recentActivities.length === 0 && (
         <Card>
@@ -55,7 +58,7 @@ function RouteComponent() {
             key={activity.id}
             id={activity.id}
             title={activity.title || linkedItem?.title || "Untitled activity"}
-            subtitle={`Tracked ${durationLabel} - updated ${formatRelativeTime(activity.updatedAt, now)}`}
+            subtitle={`Tracked ${durationLabel} - updated ${formatRelativeTime(activity.updatedAt, now, t)}`}
             tags={activity.tags}
             state={"not_running"}
             onToggleRunning={async () => {

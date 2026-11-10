@@ -1,0 +1,21 @@
+{
+    "test": "This is a test",
+    "activity.detailsView.notFound": "Activity not found",
+    "activity.detailsView.title": "Activity details",
+    "activity.detailsView.relatedItemLabel": "Related work item",
+    "activity.editor.modalTitle": "Edit activity",
+    "activity.editor.activityTitleLabel": "Title",
+    "activity.editor.activityTitleDescription": "Optional title for the activity.",
+    "activity.editor.tagsLabel": "Tags",
+    "activity.editor.tagsDescription": "Separate tags with s commas.",
+    "activity.toast.started": "Activity started",
+    "activity.toast.stopped": "Activity stopped",
+    "activity.toast.updated": "Activity updated",
+    "workItem.card.markAsDone": "Mark as done",
+    "generic.updatedAt": "updated {{time}}",
+    "generic.delete": "Delete",
+    "generic.justNow": "just now",
+    "generic.minutesAgo": "{{time}}m ago",
+    "generic.hoursAgo": "{{time}}h ago",
+    "generic.daysAgo": "{{time}}d ago"
+}

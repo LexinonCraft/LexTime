@@ -1,10 +1,12 @@
 import './index.css'
+import '@/lib/i18n'
 
 import { StrictMode } from 'react'
 import NiceModal from '@ebay/nice-modal-react'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { createRoot } from 'react-dom/client'
 
+import { LanguageObserver } from '@/components/LanguageObserver'
 import { ToastProvider } from '@/components/ui/toast'
 import { ensureDbInitialized } from '@/lib/bootstrap'
 
@@ -38,6 +40,7 @@ ensureDbInitialized()
             <RouterProvider router={router} />
           </NiceModal.Provider>
         </ToastProvider>
+        <LanguageObserver />
       </StrictMode>,
     )
   })

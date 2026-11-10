@@ -13,6 +13,7 @@ export async function getSettings(): Promise<AppSettings> {
     id: "app",
     autoSeededAt: null,
     updatedAt: Date.now(),
+    language: "en"
   }
 
   await db.settings.put(settings)
@@ -27,5 +28,13 @@ export async function reseedDatabase(): Promise<void> {
     id: "app",
     autoSeededAt: Date.now(),
     updatedAt: Date.now(),
+    language: "en"
+  })
+}
+
+export async function updateLanguage(language: string): Promise<void> {
+  await db.settings.update("app", {
+    language,
+    updatedAt: Date.now()
   })
 }

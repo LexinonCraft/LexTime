@@ -1,12 +1,13 @@
 import { useLiveQuery } from "dexie-react-hooks"
 
-import { getSettings, reseedDatabase } from "@/data/repositories/settingsRepository"
+import { getSettings, reseedDatabase, updateLanguage } from "@/data/repositories/settingsRepository"
 import type { AppSettings } from "@/types/domain"
 
 const fallbackSettings: AppSettings = {
   id: "app",
   autoSeededAt: null,
   updatedAt: 0,
+  language: "en"
 }
 
 export function useSettings(): AppSettings {
@@ -16,5 +17,6 @@ export function useSettings(): AppSettings {
 export function useSettingsActions() {
   return {
     reseedDatabase,
+    updateLanguage,
   }
 }
