@@ -1,4 +1,6 @@
 
+import { Dexie } from "dexie"
+
 import { touchWorkItem } from "@/data/repositories/workItemsRepository"
 import { db } from "@/lib/db"
 import { createId } from "@/lib/id"
@@ -268,6 +270,58 @@ export async function updateActivity(
 
   await db.activities.update(activityId, nextPatch)
   await touchWorkItem(activity.workItemId)
+}
+
+export type StartEndOrderStatus = "valid" | "end_before_start" | "now_before_start"
+
+function checkStartEndOrder(startAt: number, endAt?: number, now?: number): StartEndOrderStatus {
+  if (endAt !== undefined) {
+    if (endAt < startAt) {
+      return "end_before_start"
+    } else {
+      return "valid"
+    }
+  } else if (now !== undefined && now < startAt) {
+    return "now_before_start"
+  } else {
+    return "valid"
+  }
+}
+
+export async function checkSessionIntegrity({ sessionId, activityId, startAt, endAt }: { sessionId?: string, activityId: string, startAt: number, endAt?: number }, now?: number): Promise<{ startEndOrder: StartEndOrderStatus, overlappingSession?: { start: number, end?: number } }> {
+  function if_current_session_end_known(otherEndAt: number | null, condition: (end: number) => boolean): boolean {
+    if (otherEndAt !== null) {
+      return condition(otherEndAt)
+    } else if (now !== undefined) {
+      return condition(now)
+    }
+    return false
+  }
+  
+  const overlappingSession = await db.activitySessions
+    .where("[activityId+startAt]")
+    .between([activityId, Dexie.minKey], [activityId, endAt ?? now ?? Dexie.minKey])
+    .filter((s) => s.id !== sessionId && if_current_session_end_known(s.endAt, (end) => end > startAt))
+    .first()
+
+  return {
+    startEndOrder: checkStartEndOrder(startAt, endAt, now),
+    overlappingSession: overlappingSession ? { start: overlappingSession.startAt, end: overlappingSession.endAt !== null ? overlappingSession.endAt : undefined } : undefined,
+  }
+}
+
+export async function getSessionIntegrityViolations(activityId: string, now?: number): Promise<Set<string>> {
+  const sessions = await db.activitySessions.where("[activityId+startAt]").between([activityId, Dexie.minKey], [activityId, Dexie.maxKey]).toArray()
+  const violatingSessions = new Set<string>()
+
+  for (let i = 0; i < sessions.length; i++) {
+    const session = sessions[i]
+    const startEndOrder = checkStartEndOrder(session.startAt, session.endAt ?? undefined, Date.now())
+    if (startEndOrder !== "valid" || i + 1 < sessions.length && sessions[i + 1].startAt < (session.endAt ?? now ?? 0)) {
+      violatingSessions.add(session.id)
+    }
+  }
+  return violatingSessions
 }
 
 function normalizeTags(tags: string[]): string[] {
