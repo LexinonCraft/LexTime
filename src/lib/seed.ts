@@ -26,6 +26,8 @@ export async function ensureSeedData(): Promise<void> {
       parentId: null,
       createdAt: now - 8_640_000,
       updatedAt: now - 8_640_000,
+      allowActivities: true,
+      archived: false,
     },
     {
       id: dataStructuresId,
@@ -36,6 +38,8 @@ export async function ensureSeedData(): Promise<void> {
       parentId: universityId,
       createdAt: now - 5_400_000,
       updatedAt: now - 5_400_000,
+      allowActivities: true,
+      archived: false,
     },
     {
       id: sheetId,
@@ -46,6 +50,8 @@ export async function ensureSeedData(): Promise<void> {
       parentId: dataStructuresId,
       createdAt: now - 3_600_000,
       updatedAt: now - 3_600_000,
+      allowActivities: true,
+      archived: false,
     },
   ]
 

@@ -30,6 +30,8 @@ export async function createWorkItem(input: CreateWorkItemInput): Promise<WorkIt
     tags: normalizeTags(input.tags ?? []),
     createdAt: now,
     updatedAt: now,
+    allowActivities: true, // TODO
+    archived: false,
   }
 
   await db.workItems.add(workItem)

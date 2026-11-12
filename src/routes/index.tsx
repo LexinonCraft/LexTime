@@ -94,7 +94,7 @@ function RouteComponent() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex flex-wrap gap-2 text-xs">
-              <span className="rounded-md bg-muted px-2 py-1">Status: {formatStatus(item.status)}</span>
+              <span className="rounded-md bg-muted px-2 py-1">Status: {item.status && formatStatus(item.status)}</span>
               {item.tags.map((tag) => (
                 <span key={tag} className="rounded-md bg-secondary px-2 py-1 text-secondary-foreground">#{tag}</span>
               ))}
@@ -123,8 +123,6 @@ function formatStatus(status: WorkItemStatus): string {
     return "In progress"
   case "done":
     return "Done"
-  case "archived":
-    return "Archived"
   default:
     return status
   }
