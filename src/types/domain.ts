@@ -10,6 +10,7 @@ export interface WorkItem {
   parentId: string | null
   createdAt: number
   updatedAt: number
+  archived: boolean
 }
 
 export interface Activity {

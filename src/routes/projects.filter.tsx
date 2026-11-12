@@ -98,7 +98,7 @@ function RouteComponent() {
 }
 
 function toStatusFilter(value: unknown): WorkItemStatus | "all" {
-  if (value === "todo" || value === "in_progress" || value === "done" || value === "archived") {
+  if (value === "todo" || value === "in_progress" || value === "done") {
     return value
   }
 
