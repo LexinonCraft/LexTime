@@ -2,13 +2,21 @@ import { createContext, useCallback, useContext, useMemo, useState } from "react
 
 import { cn } from "@/lib/utils"
 
+import { Button } from "./button"
+
+interface ToastAdditionalProps {
+  buttonLabel?: string
+  onButtonClick?: () => void
+}
+
 interface ToastItem {
   id: string
   message: string
+  additionalProps?: ToastAdditionalProps
 }
 
 interface ToastContextValue {
-  showToast: (message: string) => void
+  showToast: (message: string, additionalProps?: ToastAdditionalProps) => void
   dismissToast: (id: string) => void
   toasts: ToastItem[]
 }
@@ -22,10 +30,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     setToasts((current) => current.filter((toast) => toast.id !== id))
   }, [])
 
-  const showToast = useCallback((message: string) => {
+  const showToast = useCallback((message: string, additionalProps?: ToastAdditionalProps) => {
     const id = `toast-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`
 
-    setToasts((current) => [...current, { id, message }])
+    setToasts((current) => [...current, { id, message, additionalProps }])
 
     window.setTimeout(() => {
       setToasts((current) => current.filter((toast) => toast.id !== id))
@@ -55,7 +63,7 @@ export function useToast() {
 }
 
 export function ToastViewport({ navbarVisible }: { navbarVisible: boolean }) {
-  const { toasts, dismissToast } = useToast()
+  const { toasts } = useToast()
 
   return (
     <div
@@ -66,14 +74,22 @@ export function ToastViewport({ navbarVisible }: { navbarVisible: boolean }) {
       style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0px)" }}
     >
       {toasts.map((toast) => (
-        <button
+        <div
           key={toast.id}
-          type="button"
-          onClick={() => dismissToast(toast.id)}
-          className="pointer-events-auto w-full max-w-md rounded-lg bg-foreground px-4 py-3 text-left text-sm text-background shadow-lg"
+          className="pointer-events-auto w-full max-w-md rounded-lg bg-foreground px-4 py-3 text-left text-sm text-background shadow-lg flex flex-row items-center justify-between"
         >
           {toast.message}
-        </button>
+          {toast.additionalProps?.buttonLabel && (
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={toast.additionalProps.onButtonClick}
+              className="font-bold text-primary"
+            >
+              {toast.additionalProps.buttonLabel}
+            </Button>
+          )}
+        </div>
       ))}
     </div>
   )
