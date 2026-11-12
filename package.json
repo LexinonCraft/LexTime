@@ -8,6 +8,7 @@
     "build": "npm run generate-routes && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview --host",
+    "sync:locales": "node scripts/sync-locales.mjs",
     "generate-routes": "tsr generate",
     "watch-routes": "tsr watch"
   },
