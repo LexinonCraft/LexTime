@@ -30,7 +30,7 @@ const entries: Entry[] = [
   }
 ]
 
-function NavbarItem({ entry: { icon: Icon, name, route }, selected }: { entry: Entry, selected: boolean }) {
+function NavbarItem({ entry: { icon: Icon, route }, selected }: { entry: Entry, selected: boolean }) {
   return <Link to={route} className="flex-1 flex p-1 select-none">
     <div className={`flex-1 flex flex-col justify-center place-items-center rounded-[13em] ${selected && "text-primary bg-[rgba(100,100,100,0.1)]"}`}>
       <Icon />
