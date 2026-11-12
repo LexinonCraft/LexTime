@@ -32,11 +32,8 @@ const entries: Entry[] = [
 
 function NavbarItem({ entry: { icon: Icon, name, route }, selected }: { entry: Entry, selected: boolean }) {
   return <Link to={route} className="flex-1 flex p-1 select-none">
-    <div className={`flex-1 flex flex-col justify-center place-items-center rounded-md ${selected && "text-primary bg-[rgba(100,100,100,0.1)]"}`}>
+    <div className={`flex-1 flex flex-col justify-center place-items-center rounded-[13em] ${selected && "text-primary bg-[rgba(100,100,100,0.1)]"}`}>
       <Icon />
-      <div>
-        <span>{name}</span>
-      </div>
     </div>
   </Link>
 }
@@ -44,7 +41,7 @@ function NavbarItem({ entry: { icon: Icon, name, route }, selected }: { entry: E
 export default function Navbar() {
   const matchRoute = useMatchRoute()
 
-  return <div className="fixed bottom-0 left-0 right-0 pb-5 h-20 flex flex-row justify-stretch bg-[rgba(230,230,230,0.5)] backdrop-blur-xl browser:hidden">
+  return <div className="fixed bottom-5 left-5 right-5 h-15 rounded-[15em] flex flex-row justify-stretch bg-[rgba(230,230,230,0.5)] border backdrop-blur-xl browser:hidden">
     {entries.map((entry, i) => <NavbarItem key={i} entry={entry} selected={matchRoute({ to: entry.route }) !== false} />)}
   </div>
 }
