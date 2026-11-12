@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import NiceModal, { useModal } from "@ebay/nice-modal-react"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { useLiveQuery } from "dexie-react-hooks"
-import { Check, ChevronLeft, CircleCheckBig, CircleEllipsis, CircleX, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, TriangleExclamationPoint,X } from "lucide-react"
+import { Archive, Check, ChevronLeft, CircleCheckBig, CircleEllipsis, CircleX, Ellipsis, Pause, Pencil, Plus, StepForward, Trash2, TriangleExclamationPoint,X } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupButton, InputGroupInput } from "@/components/ui/input-group"
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item"
 import { useToast } from "@/components/ui/toast"
-import { checkSessionIntegrity, getSessionIntegrityViolations } from "@/data/repositories/activitiesRepository"
+import { archiveActivity, checkSessionIntegrity, getSessionIntegrityViolations, unarchiveActivity } from "@/data/repositories/activitiesRepository"
 import { type ActivityWithSessions, useActivity, useActivityActions } from "@/hooks/useActivities"
 import useActivityStatus from "@/hooks/useActivityStatus"
 import useBack from "@/hooks/useBack"
@@ -44,6 +44,7 @@ function RouteComponent() {
   const { activityId } = Route.useParams()
   const activityRow = useActivity(activityId)
   const items = useWorkItems()
+  const { showToast } = useToast()
 
   const linkedItem = useMemo(() => {
     if (!activityRow) {
@@ -68,6 +69,20 @@ function RouteComponent() {
     )
   }
 
+  function handleArchiveActivity() {
+    if (activityRow) {
+      archiveActivity(activityRow.activity.id)
+      showToast(t("activity.detailsView.archived"))
+    }
+  }
+
+  function handleUnarchiveActivity() {
+    if (activityRow) {
+      unarchiveActivity(activityRow.activity.id)
+      showToast(t("activity.detailsView.unarchived"))
+    }
+  }
+
   return <TitleBarLayout titleBarContent={<DefaultTitleBarContent title={t("activity.detailsView.title")} leftIcons={
     <Button variant="ghost" aria-label="Back" className="[&_svg]:!size-6 text-primary" onClick={back}>
       <ChevronLeft />
@@ -80,6 +95,18 @@ function RouteComponent() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
+        {!activityRow.activity.archived && (
+          <DropdownMenuItem onClick={handleArchiveActivity}>
+            <Archive />
+            {t("generic.archive")}
+          </DropdownMenuItem>
+        )}
+        {activityRow.activity.archived && (
+          <DropdownMenuItem onClick={handleUnarchiveActivity}>
+            <Archive />
+            {t("generic.unarchive")}
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem variant="destructive" onClick={() => NiceModal.show(DeleteActivityConfirmationModal, { activityId: activityRow.activity.id })}>
           <Trash2 />
           {t("generic.delete")}
@@ -89,7 +116,7 @@ function RouteComponent() {
   } />}>
     <div className="p-3 flex flex-col gap-3">
       <ElapsedTime activityRow={activityRow} />
-      <ActivityHeader activityRow={activityRow} linkedItem={linkedItem} />
+      <ActivityHeader activityRow={activityRow} linkedItem={linkedItem} handleUnarchiveActivity={handleUnarchiveActivity} />
       {linkedItem && <LinkedItem activityRow={activityRow} linkedItem={linkedItem} />}
       <Sessions activityRow={activityRow} />
     </div>
@@ -105,7 +132,7 @@ function ElapsedTime({ activityRow }: { activityRow: ActivityWithSessions }) {
   )
 }
 
-function ActivityHeader({ activityRow, linkedItem }: { activityRow: ActivityWithSessions, linkedItem?: WorkItem }) {
+function ActivityHeader({ activityRow, linkedItem, handleUnarchiveActivity }: { activityRow: ActivityWithSessions, linkedItem?: WorkItem, handleUnarchiveActivity: () => void }) {
   const now = useNow()
   const { showToast } = useToast()
   const { startActivity, stopActivity } = useActivityActions()
@@ -123,25 +150,31 @@ function ActivityHeader({ activityRow, linkedItem }: { activityRow: ActivityWith
           <Button variant="secondary" onClick={() => NiceModal.show(EditActivityModal, { activity: activityRow.activity })}><Pencil className="text-primary" /></Button>
         </CardAction>
       </CardHeader>
-      <CardFooter className="flex flex-row gap-2 items-stretch h-20">
-        <Button variant="default" className={cn(
-          "flex-1 flex h-full [&_svg]:size-6!",
-          activityState == "not_running" ? "text-green-800 bg-green-200" : "text-black bg-gray-200"
-        )} disabled={activityState === "running"} onClick={async () => {
-          await startActivity(activityRow.activity.id, now)
-          showToast(t("activity.toast.started"))
-        }}>
-          <StepForward />
-        </Button>
-        <Button variant="secondary" className={cn(
-          "flex-1 flex h-full [&_svg]:size-6!",
-          activityState == "running" ? "text-orange-800 bg-orange-200" : "text-black bg-gray-200"
-        )} disabled={activityState !== "running"} onClick={async () => {
-          await stopActivity(activityRow.activity.id, now)
-          showToast(t("activity.toast.stopped"))
-        }}>
-          <Pause />
-        </Button>
+      <CardFooter className="flex flex-row gap-2 items-stretch">
+        {activityRow.activity.archived ? (
+          <p>
+            <span className="italic">{t("activity.detailsView.archivedNotice")}</span> (<a href="#" className="underline text-primary" onClick={handleUnarchiveActivity}>{t("activity.detailsView.archivedNoticeLink")}</a>)
+          </p>
+        ) : (<>
+          <Button variant="default" className={cn(
+            "flex-1 flex h-14 [&_svg]:size-6!",
+            activityState == "not_running" ? "text-green-800 bg-green-200" : "text-black bg-gray-200"
+          )} disabled={activityState === "running"} onClick={async () => {
+            await startActivity(activityRow.activity.id, now)
+            showToast(t("activity.toast.started"))
+          }}>
+            <StepForward />
+          </Button>
+          <Button variant="secondary" className={cn(
+            "flex-1 flex h-14 [&_svg]:size-6!",
+            activityState == "running" ? "text-orange-800 bg-orange-200" : "text-black bg-gray-200"
+          )} disabled={activityState !== "running"} onClick={async () => {
+            await stopActivity(activityRow.activity.id, now)
+            showToast(t("activity.toast.stopped"))
+          }}>
+            <Pause />
+          </Button>
+        </>)}
       </CardFooter>
     </Card>
   )

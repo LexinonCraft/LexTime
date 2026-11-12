@@ -50,6 +50,7 @@ export async function createActivity(input: CreateActivityInput): Promise<Activi
     tags: normalizeTags(input.tags ?? []),
     createdAt: now,
     updatedAt: now,
+    archived: false,
   }
 
   await db.transaction("rw", db.activities, db.activitySessions, async () => {
@@ -322,6 +323,16 @@ export async function getSessionIntegrityViolations(activityId: string, now?: nu
     }
   }
   return violatingSessions
+}
+
+export async function archiveActivity(activityId: string): Promise<void> {
+  const now = Date.now()
+  await db.activities.update(activityId, { archived: true, updatedAt: now })
+}
+
+export async function unarchiveActivity(activityId: string): Promise<void> {
+  const now = Date.now()
+  await db.activities.update(activityId, { archived: false, updatedAt: now })
 }
 
 function normalizeTags(tags: string[]): string[] {

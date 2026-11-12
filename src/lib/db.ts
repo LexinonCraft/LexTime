@@ -13,8 +13,8 @@ class LexTimeDB extends Dexie {
     super("LexTimeDB")
 
     this.version(1).stores({
-      workItems: "id, parentId, status, updatedAt, createdAt",
-      activities: "id, workItemId, title, updatedAt, createdAt",
+      workItems: "id, parentId, status, updatedAt, createdAt, archived",
+      activities: "id, workItemId, title, updatedAt, createdAt, archived",
       activitySessions: "id, activityId, startAt, endAt, [activityId+startAt], [activityId+endAt]",
       settings: "id, updatedAt",
       seedState: "id, initializedAt",
