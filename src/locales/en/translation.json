@@ -18,6 +18,7 @@
     "workItem.card.markAsDone": "Mark as done",
     "generic.updatedAt": "updated {{time}}",
     "generic.delete": "Delete",
+    "generic.undo": "Undo",
     "generic.archive": "Archive",
     "generic.unarchive": "Un-Archive",
     "generic.justNow": "just now",

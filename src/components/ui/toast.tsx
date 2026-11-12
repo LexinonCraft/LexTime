@@ -63,7 +63,7 @@ export function useToast() {
 }
 
 export function ToastViewport({ navbarVisible }: { navbarVisible: boolean }) {
-  const { toasts } = useToast()
+  const { toasts, dismissToast } = useToast()
 
   return (
     <div
@@ -83,7 +83,10 @@ export function ToastViewport({ navbarVisible }: { navbarVisible: boolean }) {
             <Button
               variant="ghost"
               size="xs"
-              onClick={toast.additionalProps.onButtonClick}
+              onClick={() => {
+                toast.additionalProps?.onButtonClick?.()
+                dismissToast(toast.id)
+              }}
               className="font-bold text-primary"
             >
               {toast.additionalProps.buttonLabel}

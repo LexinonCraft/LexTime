@@ -69,17 +69,17 @@ function RouteComponent() {
     )
   }
 
-  function handleArchiveActivity() {
+  async function handleArchiveActivity() {
     if (activityRow) {
-      archiveActivity(activityRow.activity.id)
-      showToast(t("activity.detailsView.archived"))
+      const { undo } = await archiveActivity(activityRow.activity.id)
+      showToast(t("activity.detailsView.archived"), { buttonLabel: t("generic.undo"), onButtonClick: () => { undo(); showToast(t("activity.detailsView.unarchived")) } })
     }
   }
 
-  function handleUnarchiveActivity() {
+  async function handleUnarchiveActivity() {
     if (activityRow) {
-      unarchiveActivity(activityRow.activity.id)
-      showToast(t("activity.detailsView.unarchived"))
+      const { undo } = await unarchiveActivity(activityRow.activity.id)
+      showToast(t("activity.detailsView.unarchived"), { buttonLabel: t("generic.undo"), onButtonClick: () => { undo(); showToast(t("activity.detailsView.archived")) } })
     }
   }
 
