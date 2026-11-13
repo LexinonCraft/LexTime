@@ -1,14 +1,16 @@
-export type WorkItemStatus = "todo" | "in_progress" | "done" | "archived"
+export type WorkItemStatus = "todo" | "in_progress" | "done"
 
 export interface WorkItem {
   id: string
   title: string
   description: string
-  status: WorkItemStatus
+  status: WorkItemStatus | null
   tags: string[]
+  allowActivities: boolean
   parentId: string | null
   createdAt: number
   updatedAt: number
+  archived: boolean
 }
 
 export interface Activity {

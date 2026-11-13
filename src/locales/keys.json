@@ -1,0 +1,26 @@
+{
+  "activity.detailsView.notFound": "Message shown when an activity cannot be found",
+  "activity.detailsView.relatedItemLabel": "Label for the associated work item",
+  "activity.detailsView.title": "Activity details page title",
+
+  "activity.editor.activityTitleDescription": "Description of the optional activity title",
+  "activity.editor.activityTitleLabel": "Activity title field label",
+  "activity.editor.modalTitle": "Edit activity modal title",
+  "activity.editor.tagsDescription": "Instructions for entering activity tags",
+  "activity.editor.tagsLabel": "Activity tags field label",
+
+  "activity.toast.started": "Confirmation that an activity started",
+  "activity.toast.stopped": "Confirmation that an activity stopped",
+  "activity.toast.updated": "Confirmation that an activity was updated",
+
+  "generic.daysAgo": "Relative time in days",
+  "generic.delete": "Delete action",
+  "generic.hoursAgo": "Relative time in hours",
+  "generic.justNow": "Relative time for a recent event",
+  "generic.minutesAgo": "Relative time in minutes",
+  "generic.updatedAt": "Relative time when an item was updated",
+
+  "test": "Test translation",
+
+  "workItem.card.markAsDone": "Action to mark a work item as done"
+}

@@ -107,7 +107,7 @@ function RouteComponent() {
           :
           <CardContent className="space-y-2">
             <TagList>
-              <StatusTag status={statusLabel(item.status)} textColor={statusTextColor(item.status)} backgroundColor={statusBackgroundColor(item.status)} />
+              <StatusTag status={statusLabel(item.status ?? "todo")} textColor={statusTextColor(item.status ?? "todo")} backgroundColor={statusBackgroundColor(item.status ?? "todo")} />
               {
                 item.tags.map((tag) => (
                   <Hashtag key={tag} tag={tag} />
@@ -136,7 +136,7 @@ function RouteComponent() {
             <div key={child.id} className="flex items-center justify-between rounded-md bg-muted p-2">
               <div>
                 <div className="font-medium">{child.title}</div>
-                <div className="text-xs text-muted-foreground">{statusLabel(child.status)}</div>
+                <div className="text-xs text-muted-foreground">{statusLabel(child.status ?? "todo")}</div>
               </div>
               <Button asChild size="sm" variant="outline">
                 <Link to="/projects/$projectId" params={{ projectId: child.id }}>Open</Link>
@@ -258,7 +258,6 @@ function ProjectMetadataEditor({
         <Button variant="secondary" onClick={() => setWorkItemStatus(itemId, "todo")}>To do</Button>
         <Button variant="secondary" onClick={() => setWorkItemStatus(itemId, "in_progress")}>In progress</Button>
         <Button variant="secondary" onClick={() => setWorkItemStatus(itemId, "done")}>Done</Button>
-        <Button variant="secondary" onClick={() => setWorkItemStatus(itemId, "archived")}>Archived</Button>
       </div>
 
       <Button className="w-full" onClick={onSaveProject}>Save metadata</Button>
@@ -278,8 +277,6 @@ function statusLabel(status: WorkItemStatus): string {
     return "In progress"
   case "done":
     return "Done"
-  case "archived":
-    return "Archived"
   default:
     return status
   }
@@ -293,8 +290,6 @@ function statusBackgroundColor(status: WorkItemStatus): string {
     return "bg-yellow-100"
   case "done":
     return "bg-green-100"
-  case "archived":
-    return "bg-gray-100"
   default:
     return "bg-gray-100"
   }
@@ -308,8 +303,6 @@ function statusTextColor(status: WorkItemStatus): string {
     return "text-yellow-800"
   case "done":
     return "text-green-800"
-  case "archived":
-    return "text-gray-800"
   default:
     return "text-gray-800"
   }

@@ -105,7 +105,7 @@ function RouteComponent() {
 
                 <div className="min-w-0 flex-1">
                   <div className="truncate font-medium">{node.item.title}</div>
-                  <div className="text-xs text-muted-foreground">{statusLabel(node.item.status)}</div>
+                  <div className="text-xs text-muted-foreground">{statusLabel(node.item.status ?? "done")}</div>
                   {node.showFullPath && (
                     <div className="truncate text-xs text-muted-foreground">Path: {node.fullPath}</div>
                   )}
@@ -144,7 +144,7 @@ function withAncestors(filteredItems: WorkItem[], allItems: WorkItem[]): Set<str
 }
 
 function toStatusFilter(value: unknown): WorkItemStatus | "all" {
-  if (value === "todo" || value === "in_progress" || value === "done" || value === "archived") {
+  if (value === "todo" || value === "in_progress" || value === "done") {
     return value
   }
 
@@ -168,8 +168,6 @@ function statusLabel(status: WorkItemStatus): string {
     return "In progress"
   case "done":
     return "Done"
-  case "archived":
-    return "Archived"
   default:
     return status
   }
