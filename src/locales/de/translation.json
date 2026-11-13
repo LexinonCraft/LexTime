@@ -1,4 +1,5 @@
 {
+  "activity.detailsView.archivedNotice": "Diese Aktivität wurde archiviert.",
   "activity.detailsView.notFound": "Aktivität konnte nicht gefunden werden",
   "activity.detailsView.relatedItemLabel": "Zugehöriges Work-Item",
   "activity.detailsView.title": "Aktivität",
@@ -9,15 +10,25 @@
   "activity.editor.tagsDescription": "Trenne Tags mit einem Komma.",
   "activity.editor.tagsLabel": "Tags",
 
+  "activity.modal.deleteQuestion": "Bist du sicher, dass du diese Aktivität löschen möchtest?",
+
+  "activity.toast.archived": "Aktivität archiviert",
+  "activity.toast.deleted": "Aktivität gelöscht",
   "activity.toast.started": "Aktivität gestartet",
   "activity.toast.stopped": "Aktivität gestoppt",
+  "activity.toast.unarchived": "Aktivität wiederhergestellt",
   "activity.toast.updated": "Aktivität aktualisiert",
 
+  "generic.archive": "Archivieren",
+  "generic.cancel": "Abbrechen",
+  "generic.cannotBeUndone": "Diese Aktion kann nicht rückgängig gemacht werden.",
   "generic.daysAgo": "vor {{time}} Tagen",
   "generic.delete": "Löschen",
   "generic.hoursAgo": "vor {{time}} Stunden",
   "generic.justNow": "gerade eben",
   "generic.minutesAgo": "vor {{time}} Minuten",
+  "generic.unarchive": "Wiederherstellen",
+  "generic.undo": "Rückgängig",
   "generic.updatedAt": "{{time}} aktualisiert",
 
   "test": "Dies ist ein Test",

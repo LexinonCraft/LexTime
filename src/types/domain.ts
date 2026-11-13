@@ -20,6 +20,7 @@ export interface Activity {
   tags: string[]
   createdAt: number
   updatedAt: number
+  archived: boolean
 }
 
 export interface ActivitySession {
