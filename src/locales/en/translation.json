@@ -21,6 +21,7 @@
 
   "generic.archive": "Archive",
   "generic.cancel": "Cancel",
+  "generic.cannotBeUndone": "This action cannot be undone.",
   "generic.daysAgo": "{{time}}d ago",
   "generic.delete": "Delete",
   "generic.hoursAgo": "{{time}}h ago",

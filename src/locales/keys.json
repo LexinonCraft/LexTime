@@ -21,6 +21,7 @@
 
   "generic.archive": "Archive action",
   "generic.cancel": "Cancel button label",
+  "generic.cannotBeUndone": "Message indicating that an action cannot be undone",
   "generic.daysAgo": "Relative time in days",
   "generic.delete": "Delete action",
   "generic.hoursAgo": "Relative time in hours",

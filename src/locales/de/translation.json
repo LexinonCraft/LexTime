@@ -21,6 +21,7 @@
 
   "generic.archive": "Archivieren",
   "generic.cancel": "Abbrechen",
+  "generic.cannotBeUndone": "Diese Aktion kann nicht rückgängig gemacht werden.",
   "generic.daysAgo": "vor {{time}} Tagen",
   "generic.delete": "Löschen",
   "generic.hoursAgo": "vor {{time}} Stunden",

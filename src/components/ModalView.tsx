@@ -58,12 +58,13 @@ export function simpleModalHandler(modal: NiceModalHandler) {
   }
 }
 
-export function ConfirmationModal({ prompt, buttons, show }: { prompt: string, buttons: { label: string, variant?: VariantProps<typeof buttonVariants>["variant"], onClick: () => void }[], show: boolean }) {
+export function ConfirmationModal({ prompt, subtext, buttons, show }: { prompt: string, subtext?: string, buttons: { label: string, variant?: VariantProps<typeof buttonVariants>["variant"], onClick: () => void }[], show: boolean }) {
   return (
     <ModalView height="small" show={show}>
       <div className="p-3 flex flex-col justify-evenly h-full">
         <div className="py-10">
           <p className="text-center font-bold text-xl">{prompt}</p>
+          {subtext && <p className="text-center text-muted-foreground mt-5">{subtext}</p>}
         </div>
         <div className="flex flex-col justify-center gap-3">
           {buttons.map((button, index) => (

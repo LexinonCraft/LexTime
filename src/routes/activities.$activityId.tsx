@@ -461,6 +461,7 @@ const DeleteActivityConfirmationModal = NiceModal.create(({ activityId }: { acti
   return (
     <ConfirmationModal
       prompt={t("activity.modal.deleteQuestion")}
+      subtext={t("generic.cannotBeUndone")}
       buttons={[
         {
           label: t("generic.delete"), variant: "destructive", onClick: handleDelete
