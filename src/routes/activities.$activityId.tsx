@@ -34,6 +34,7 @@ import { formatSessionDay, formatSessionEnd, formatSessionTime, groupSessionsByS
 import { formatDuration, formatRelativeTime, toDateTimeLocalValue } from "@/lib/time"
 import { cn } from "@/lib/utils"
 import { getPath } from "@/lib/workItems"
+import { router } from "@/main"
 import type { Activity, ActivitySession, WorkItem } from "@/types/domain"
 
 export const Route = createFileRoute("/activities/$activityId")({
@@ -447,18 +448,24 @@ const DeleteActivityConfirmationModal = NiceModal.create(({ activityId }: { acti
   const { showToast } = useToast()
   const modal = useModal()
   const { visible, close } = simpleModalHandler(modal)
+  const { deleteActivity } = useActivityActions()
+  const { t } = useTranslation()
+
+  async function handleDelete() {
+    await router.navigate({ to: "/" })
+    await deleteActivity(activityId)
+    await close()
+    showToast(t("activity.toast.deleted"))
+  }
 
   return (
     <ConfirmationModal
-      prompt="Are you sure you want to delete this activity?"
+      prompt={t("activity.modal.deleteQuestion")}
       buttons={[
         {
-          label: "Delete", variant: "destructive", onClick: () => {
-            close()
-            showToast(`Deletion logic not implemented yet (${activityId})`)
-          }
+          label: t("generic.delete"), variant: "destructive", onClick: handleDelete
         },
-        { label: "Cancel", onClick: () => close() }
+        { label: t("generic.cancel"), onClick: () => close() }
       ]}
       show={visible}
     />

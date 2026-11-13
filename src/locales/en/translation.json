@@ -10,13 +10,17 @@
   "activity.editor.tagsDescription": "Separate tags with s commas.",
   "activity.editor.tagsLabel": "Tags",
 
+  "activity.modal.deleteQuestion": "Are you sure you want to delete this activity?",
+
   "activity.toast.archived": "Activity archived",
+  "activity.toast.deleted": "Activity deleted",
   "activity.toast.started": "Activity started",
   "activity.toast.stopped": "Activity stopped",
   "activity.toast.unarchived": "Activity un-archived",
   "activity.toast.updated": "Activity updated",
 
   "generic.archive": "Archive",
+  "generic.cancel": "Cancel",
   "generic.daysAgo": "{{time}}d ago",
   "generic.delete": "Delete",
   "generic.hoursAgo": "{{time}}h ago",

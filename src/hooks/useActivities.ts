@@ -3,6 +3,7 @@ import { useLiveQuery } from "dexie-react-hooks"
 import {
   addActivitySession,
   createActivity,
+  deleteActivity,
   deleteActivitySessions,
   getActivityById,
   listActivities,
@@ -85,5 +86,6 @@ export function useActivityActions() {
     updateActivity,
     updateActivitySession,
     updateActivityTags,
+    deleteActivity,
   }
 }

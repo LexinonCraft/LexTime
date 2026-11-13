@@ -10,13 +10,17 @@
   "activity.editor.tagsDescription": "Instructions for entering activity tags",
   "activity.editor.tagsLabel": "Activity tags field label",
 
+  "activity.modal.deleteQuestion": "Confirmation question for deleting an activity",
+
   "activity.toast.archived": "Toast message shown when an activity is archived",
+  "activity.toast.deleted": "Toast message shown when an activity is deleted",
   "activity.toast.started": "Toast message shown when an activity is started",
   "activity.toast.stopped": "Toast message shown when an activity is stopped",
   "activity.toast.unarchived": "Toast message shown when an activity is unarchived",
   "activity.toast.updated": "Toast message shown when an activity is updated",
 
   "generic.archive": "Archive action",
+  "generic.cancel": "Cancel button label",
   "generic.daysAgo": "Relative time in days",
   "generic.delete": "Delete action",
   "generic.hoursAgo": "Relative time in hours",
