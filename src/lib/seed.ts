@@ -63,6 +63,7 @@ export async function ensureSeedData(): Promise<void> {
       tags: ["home"],
       createdAt: now - 3_000_000,
       updatedAt: now - 1_200_000,
+      archived: false,
     },
   ]
 
