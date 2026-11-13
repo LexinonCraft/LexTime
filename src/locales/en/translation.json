@@ -1,4 +1,5 @@
 {
+  "activity.detailsView.archivedNotice": "This activity has been archived.",
   "activity.detailsView.notFound": "Activity not found",
   "activity.detailsView.relatedItemLabel": "Related work item",
   "activity.detailsView.title": "Activity details",
@@ -9,15 +10,20 @@
   "activity.editor.tagsDescription": "Separate tags with s commas.",
   "activity.editor.tagsLabel": "Tags",
 
+  "activity.toast.archived": "Activity archived",
   "activity.toast.started": "Activity started",
   "activity.toast.stopped": "Activity stopped",
+  "activity.toast.unarchived": "Activity un-archived",
   "activity.toast.updated": "Activity updated",
 
+  "generic.archive": "Archive",
   "generic.daysAgo": "{{time}}d ago",
   "generic.delete": "Delete",
   "generic.hoursAgo": "{{time}}h ago",
   "generic.justNow": "just now",
   "generic.minutesAgo": "{{time}}m ago",
+  "generic.unarchive": "Un-archive",
+  "generic.undo": "Undo",
   "generic.updatedAt": "updated {{time}}",
 
   "test": "This is a test",

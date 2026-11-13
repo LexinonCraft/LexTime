@@ -1,4 +1,5 @@
 {
+  "activity.detailsView.archivedNotice": "Message shown in place of start/stop controls for an archived activity",
   "activity.detailsView.notFound": "Message shown when an activity cannot be found",
   "activity.detailsView.relatedItemLabel": "Label for the associated work item",
   "activity.detailsView.title": "Activity details page title",
@@ -9,15 +10,20 @@
   "activity.editor.tagsDescription": "Instructions for entering activity tags",
   "activity.editor.tagsLabel": "Activity tags field label",
 
-  "activity.toast.started": "Confirmation that an activity started",
-  "activity.toast.stopped": "Confirmation that an activity stopped",
-  "activity.toast.updated": "Confirmation that an activity was updated",
+  "activity.toast.archived": "Toast message shown when an activity is archived",
+  "activity.toast.started": "Toast message shown when an activity is started",
+  "activity.toast.stopped": "Toast message shown when an activity is stopped",
+  "activity.toast.unarchived": "Toast message shown when an activity is unarchived",
+  "activity.toast.updated": "Toast message shown when an activity is updated",
 
+  "generic.archive": "Archive action",
   "generic.daysAgo": "Relative time in days",
   "generic.delete": "Delete action",
   "generic.hoursAgo": "Relative time in hours",
   "generic.justNow": "Relative time for a recent event",
   "generic.minutesAgo": "Relative time in minutes",
+  "generic.unarchive": "Un-Archive action",
+  "generic.undo": "Undo button label",
   "generic.updatedAt": "Relative time when an item was updated",
 
   "test": "Test translation",

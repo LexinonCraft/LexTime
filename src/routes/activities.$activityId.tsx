@@ -72,14 +72,14 @@ function RouteComponent() {
   async function handleArchiveActivity() {
     if (activityRow) {
       const { undo } = await archiveActivity(activityRow.activity.id)
-      showToast(t("activity.detailsView.archived"), { buttonLabel: t("generic.undo"), onButtonClick: () => { undo(); showToast(t("activity.detailsView.unarchived")) } })
+      showToast(t("activity.toast.archived"), { buttonLabel: t("generic.undo"), onButtonClick: () => { undo(); showToast(t("activity.toast.unarchived")) } })
     }
   }
 
   async function handleUnarchiveActivity() {
     if (activityRow) {
       const { undo } = await unarchiveActivity(activityRow.activity.id)
-      showToast(t("activity.detailsView.unarchived"), { buttonLabel: t("generic.undo"), onButtonClick: () => { undo(); showToast(t("activity.detailsView.archived")) } })
+      showToast(t("activity.toast.unarchived"), { buttonLabel: t("generic.undo"), onButtonClick: () => { undo(); showToast(t("activity.toast.archived")) } })
     }
   }
 
@@ -153,7 +153,7 @@ function ActivityHeader({ activityRow, linkedItem, handleUnarchiveActivity }: { 
       <CardFooter className="flex flex-row gap-2 items-stretch">
         {activityRow.activity.archived ? (
           <p>
-            <span className="italic">{t("activity.detailsView.archivedNotice")}</span> (<a href="#" className="underline text-primary" onClick={handleUnarchiveActivity}>{t("activity.detailsView.archivedNoticeLink")}</a>)
+            <span className="italic">{t("activity.detailsView.archivedNotice")}</span> (<a href="#" className="underline text-primary" onClick={handleUnarchiveActivity}>{t("generic.unarchive")}</a>)
           </p>
         ) : (<>
           <Button variant="default" className={cn(
