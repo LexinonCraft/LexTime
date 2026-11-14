@@ -1,4 +1,4 @@
-import { type Ref, useRef, useState } from 'react'
+import { type Ref, useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Check, Plus, Search, X } from 'lucide-react';
 
@@ -50,10 +50,7 @@ function modalTitleBarRightIcons(closeModal: () => void) {
 }
 
 function RouteComponent() {
-  const titleRef = useRef<HTMLElement>(null)
-  const titleOnScreenRaw = useOnScreen(titleRef)
-  // eslint-disable-next-line react-hooks/refs
-  const titleOnScreen = titleRef.current != null ? titleOnScreenRaw : true
+  const [titleOnScreen, titleRef] = useOnScreen()
 
   const [showModal, setShowModal] = useState(false)
 
