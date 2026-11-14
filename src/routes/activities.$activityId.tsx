@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
 import ModalView, { ConfirmationModal, simpleModalHandler } from "@/components/ModalView"
-import { StatusTag, TagList } from "@/components/Tag"
+import { Hashtag, StatusTag, TagList } from "@/components/Tag"
 import { Button } from "@/components/ui/button"
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -150,6 +150,9 @@ function ActivityHeader({ activityRow, linkedItem, handleUnarchiveActivity, titl
       <CardHeader>
         <CardTitle><span ref={titleRef}>{activityRow.activity.title || linkedItem?.title || "Untitled activity"}</span></CardTitle>
         <CardDescription>
+          <TagList>
+            {activityRow.activity.tags.map(tag => <Hashtag key={tag} tag={tag} />)}
+          </TagList>
           {t("generic.updatedAt", { time: formatRelativeTime(activityRow.activity.updatedAt, now, t) })}
         </CardDescription>
         <CardAction>
