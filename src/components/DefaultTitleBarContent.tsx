@@ -1,5 +1,5 @@
 export default function DefaultTitleBarContent({ title, leftIcons, rightIcons, h1heading }: {
-    title: string,
+    title: React.ReactNode,
     leftIcons?: React.ReactNode,
     rightIcons?: React.ReactNode,
     h1heading?: boolean

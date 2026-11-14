@@ -28,6 +28,7 @@ import useActivityStatus from "@/hooks/useActivityStatus"
 import useBack from "@/hooks/useBack"
 import useElapsedTime from "@/hooks/useElapsedTime"
 import { useNow } from "@/hooks/useNow"
+import useOnScreen from "@/hooks/useOnScreen"
 import { useWorkItems } from "@/hooks/useWorkItems"
 import TitleBarLayout from "@/layouts/TitleBarLayout"
 import { formatSessionDay, formatSessionEnd, formatSessionTime, groupSessionsByStartDay } from "@/lib/sessions"
@@ -57,6 +58,7 @@ function RouteComponent() {
 
   const back = useBack(undefined)
   const { t } = useTranslation()
+  const [titleVisible, titleRef] = useOnScreen()
 
   if (!activityRow) {
     return (
@@ -84,40 +86,43 @@ function RouteComponent() {
     }
   }
 
-  return <TitleBarLayout titleBarContent={<DefaultTitleBarContent title={t("activity.detailsView.title")} leftIcons={
-    <Button variant="ghost" aria-label="Back" className="[&_svg]:!size-6 text-primary" onClick={back}>
-      <ChevronLeft />
-    </Button>
-  } rightIcons={
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="[&_svg]:!size-6 text-primary">
-          <CircleEllipsis />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        {!activityRow.activity.archived && (
-          <DropdownMenuItem onClick={handleArchiveActivity}>
-            <Archive />
-            {t("generic.archive")}
+  return <TitleBarLayout titleBarContent={
+    <DefaultTitleBarContent title={
+      <span className={`line-clamp-1 transition-opacity duration-200 ${titleVisible ? "opacity-0" : "opacity-100"}`}>{activityRow.activity.title || linkedItem?.title || "Untitled activity"}</span>
+    } leftIcons={
+      <Button variant="ghost" aria-label="Back" className="[&_svg]:!size-6 text-primary" onClick={back}>
+        <ChevronLeft />
+      </Button>
+    } rightIcons={
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="[&_svg]:!size-6 text-primary">
+            <CircleEllipsis />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {!activityRow.activity.archived && (
+            <DropdownMenuItem onClick={handleArchiveActivity}>
+              <Archive />
+              {t("generic.archive")}
+            </DropdownMenuItem>
+          )}
+          {activityRow.activity.archived && (
+            <DropdownMenuItem onClick={handleUnarchiveActivity}>
+              <Archive />
+              {t("generic.unarchive")}
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem variant="destructive" onClick={() => NiceModal.show(DeleteActivityConfirmationModal, { activityId: activityRow.activity.id })}>
+            <Trash2 />
+            {t("generic.delete")}
           </DropdownMenuItem>
-        )}
-        {activityRow.activity.archived && (
-          <DropdownMenuItem onClick={handleUnarchiveActivity}>
-            <Archive />
-            {t("generic.unarchive")}
-          </DropdownMenuItem>
-        )}
-        <DropdownMenuItem variant="destructive" onClick={() => NiceModal.show(DeleteActivityConfirmationModal, { activityId: activityRow.activity.id })}>
-          <Trash2 />
-          {t("generic.delete")}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  } />}>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    } />}>
     <div className="p-3 flex flex-col gap-3">
       <ElapsedTime activityRow={activityRow} />
-      <ActivityHeader activityRow={activityRow} linkedItem={linkedItem} handleUnarchiveActivity={handleUnarchiveActivity} />
+      <ActivityHeader activityRow={activityRow} linkedItem={linkedItem} handleUnarchiveActivity={handleUnarchiveActivity} titleRef={titleRef} />
       {linkedItem && <LinkedItem activityRow={activityRow} linkedItem={linkedItem} />}
       <Sessions activityRow={activityRow} />
     </div>
@@ -133,7 +138,7 @@ function ElapsedTime({ activityRow }: { activityRow: ActivityWithSessions }) {
   )
 }
 
-function ActivityHeader({ activityRow, linkedItem, handleUnarchiveActivity }: { activityRow: ActivityWithSessions, linkedItem?: WorkItem, handleUnarchiveActivity: () => void }) {
+function ActivityHeader({ activityRow, linkedItem, handleUnarchiveActivity, titleRef }: { activityRow: ActivityWithSessions, linkedItem?: WorkItem, handleUnarchiveActivity: () => void, titleRef: React.Ref<HTMLElement | null> }) {
   const now = useNow()
   const { showToast } = useToast()
   const { startActivity, stopActivity } = useActivityActions()
@@ -143,7 +148,7 @@ function ActivityHeader({ activityRow, linkedItem, handleUnarchiveActivity }: { 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{activityRow.activity.title || linkedItem?.title || "Untitled activity"}</CardTitle>
+        <CardTitle><span ref={titleRef}>{activityRow.activity.title || linkedItem?.title || "Untitled activity"}</span></CardTitle>
         <CardDescription>
           {t("generic.updatedAt", { time: formatRelativeTime(activityRow.activity.updatedAt, now, t) })}
         </CardDescription>
