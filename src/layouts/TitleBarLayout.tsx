@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export default function TitleBarLayout({ children, titleBarContent, hide, hideable }: { children?: React.ReactNode, titleBarContent?: React.ReactNode, hide?: boolean, hideable?: boolean }) {
   const scrollPosition = useScrollPosition()
     
-  return <div>
+  return <div className="flex flex-col h-full">
     <div className={cn(
       hideable ? "fixed" : "fixed z-10",
       "top-0 left-0 right-0 transition-all duration-300 ease-in-out",
@@ -13,7 +13,7 @@ export default function TitleBarLayout({ children, titleBarContent, hide, hideab
     )}>
       <TitleBar showBorder={scrollPosition > 0}>{titleBarContent}</TitleBar>
     </div>
-    <div className={cn("flex-1", hideable ? "" : "pt-13")}>
+    <div className={cn("flex flex-col h-full flex-1", hideable ? "" : "pt-13")}>
       {children}
     </div>
   </div>

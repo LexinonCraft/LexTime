@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
+import LoadingPage from "@/components/LoadingPage"
 import ModalView, { ConfirmationModal, simpleModalHandler } from "@/components/ModalView"
 import { Hashtag, StatusTag, TagList } from "@/components/Tag"
 import { Button } from "@/components/ui/button"
@@ -44,7 +45,7 @@ export const Route = createFileRoute("/activities/$activityId")({
 
 function RouteComponent() {
   const { activityId } = Route.useParams()
-  const activityRow = useActivity(activityId)
+  const { loading, activityWithSessions: activityRow } = useActivity(activityId)
   const items = useWorkItems()
   const { showToast } = useToast()
 
@@ -58,7 +59,11 @@ function RouteComponent() {
 
   const back = useBack(undefined)
   const { t } = useTranslation()
-  const [titleVisible, titleRef] = useOnScreen()
+  const [titleVisible, titleMounted, titleRef] = useOnScreen()
+
+  if (loading) {
+    return <LoadingPage />
+  }
 
   if (!activityRow) {
     return (
@@ -88,7 +93,7 @@ function RouteComponent() {
 
   return <TitleBarLayout titleBarContent={
     <DefaultTitleBarContent title={
-      <span className={`line-clamp-1 transition-opacity duration-200 ${titleVisible ? "opacity-0" : "opacity-100"}`}>{activityRow.activity.title || linkedItem?.title || "Untitled activity"}</span>
+      <span className={`line-clamp-1 transition-opacity duration-200 ${titleVisible || !titleMounted ? "opacity-0" : "opacity-100"}`}>{activityRow.activity.title || linkedItem?.title || "Untitled activity"}</span>
     } leftIcons={
       <Button variant="ghost" aria-label="Back" className="[&_svg]:!size-6 text-primary" onClick={back}>
         <ChevronLeft />
