@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import DefaultTitleBarContent from "./DefaultTitleBarContent"
 import { Button, type buttonVariants } from "./ui/button"
 
-export type ModalViewHeight = "small" | "medium" | "large"
+export type ModalViewHeight = "small" | "medium" | "large" | "adaptive"
 
 // TODO: prevent scrolling of the background when the modal is open
 
@@ -37,7 +37,7 @@ export default function ModalView({ children, height, show, showTitleBar, title,
       "fixed bottom-0 left-0 right-0 z-51 pb-4 bg-background rounded-t-lg w-full transition-transform duration-300 ease-in-out",
       "flex flex-col justify-start overflow-hidden",
       animatedShow ? "translate-y-0" : "translate-y-full",
-      height === "small" ? "h-3/8" : height === "medium" ? "h-11/16" : "h-7/8"
+      height === "small" ? "h-3/8" : height === "medium" ? "h-11/16" : height === "large" ? "h-7/8" : "h-auto"
     )}>
       {showTitleBar && <DefaultTitleBarContent title={title ?? ""} leftIcons={leftIcons} rightIcons={rightIcons} />}
       <div className="overflow-scroll flex-1">
@@ -60,7 +60,7 @@ export function simpleModalHandler(modal: NiceModalHandler) {
 
 export function ConfirmationModal({ prompt, subtext, buttons, show }: { prompt: string, subtext?: string, buttons: { label: string, variant?: VariantProps<typeof buttonVariants>["variant"], onClick: () => void }[], show: boolean }) {
   return (
-    <ModalView height="small" show={show}>
+    <ModalView height="adaptive" show={show}>
       <div className="p-3 flex flex-col justify-evenly h-full">
         <div className="py-10">
           <p className="text-center font-bold text-xl">{prompt}</p>

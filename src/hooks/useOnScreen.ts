@@ -1,23 +1,26 @@
 import { useCallback, useEffect, useState } from "react";
 
-export default function useOnScreen(): [boolean, React.Ref<HTMLElement | null>] {
+export default function useOnScreen(): [boolean, boolean, React.Ref<HTMLElement | null>] {
+  const [isOnScreen, setOnScreen] = useState(false)
+  const [ready, setReady] = useState(false)
 
-  const [isIntersecting, setIntersecting] = useState(false)
-
-  const [node, setNode] = useState<HTMLElement | null>(null)
+  const [observer, setObserver] = useState<IntersectionObserver | null>(null)
 
   useEffect(() => {
-    if (!node) return
-    const observer = new IntersectionObserver(
-      ([entry]) => setIntersecting(entry.isIntersecting)
-    )
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [node])
+    return () => observer?.disconnect()
+  }, [observer])
 
   const ref = useCallback((node: HTMLElement | null) => {
-    setNode(node)
+    if (!node) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setOnScreen(entry.isIntersecting)
+        setReady(true)
+      }
+    )
+    observer.observe(node)
+    setObserver(observer)
   }, [])
 
-  return [isIntersecting, ref as React.Ref<HTMLElement | null>]
+  return [isOnScreen, ready, ref as React.Ref<HTMLElement | null>]
 }

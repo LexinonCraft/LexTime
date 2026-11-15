@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import NiceModal, { useModal } from "@ebay/nice-modal-react"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { useLiveQuery } from "dexie-react-hooks"
@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import DefaultTitleBarContent from "@/components/DefaultTitleBarContent"
+import LoadingPage from "@/components/LoadingPage"
 import ModalView, { ConfirmationModal, simpleModalHandler } from "@/components/ModalView"
 import { Hashtag, StatusTag, TagList } from "@/components/Tag"
 import { Button } from "@/components/ui/button"
@@ -24,7 +25,7 @@ import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/comp
 import { useToast } from "@/components/ui/toast"
 import { archiveActivity, checkSessionIntegrity, getSessionIntegrityViolations, unarchiveActivity } from "@/data/repositories/activitiesRepository"
 import { type ActivityWithSessions, useActivity, useActivityActions } from "@/hooks/useActivities"
-import useActivityStatus from "@/hooks/useActivityStatus"
+import useActivityStatus, { type ActivityState } from "@/hooks/useActivityStatus"
 import useBack from "@/hooks/useBack"
 import useElapsedTime from "@/hooks/useElapsedTime"
 import { useNow } from "@/hooks/useNow"
@@ -44,7 +45,7 @@ export const Route = createFileRoute("/activities/$activityId")({
 
 function RouteComponent() {
   const { activityId } = Route.useParams()
-  const activityRow = useActivity(activityId)
+  const { loading, activityWithSessions: activityRow } = useActivity(activityId)
   const items = useWorkItems()
   const { showToast } = useToast()
 
@@ -58,18 +59,19 @@ function RouteComponent() {
 
   const back = useBack(undefined)
   const { t } = useTranslation()
-  const [titleVisible, titleRef] = useOnScreen()
+  const [titleVisible, titleMounted, titleRef] = useOnScreen()
+  const activityState = useActivityStatus(activityId)
+  const openedNotFoundModal = useRef<boolean>(false)
 
-  if (!activityRow) {
-    return (
-      <div className="p-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("activity.detailsView.notFound")}</CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
-    )
+  useEffect(() => {
+    if (!loading && !activityRow && !openedNotFoundModal.current) {
+      NiceModal.show(NotFoundModal, { back })
+      openedNotFoundModal.current = true
+    }
+  }, [loading, activityRow, openedNotFoundModal])
+
+  if (!activityRow || !activityState) {
+    return <LoadingPage />
   }
 
   async function handleArchiveActivity() {
@@ -88,7 +90,7 @@ function RouteComponent() {
 
   return <TitleBarLayout titleBarContent={
     <DefaultTitleBarContent title={
-      <span className={`line-clamp-1 transition-opacity duration-200 ${titleVisible ? "opacity-0" : "opacity-100"}`}>{activityRow.activity.title || linkedItem?.title || "Untitled activity"}</span>
+      <span className={`line-clamp-1 transition-opacity duration-200 ${titleVisible || !titleMounted ? "opacity-0" : "opacity-100"}`}>{activityRow.activity.title || linkedItem?.title || "Untitled activity"}</span>
     } leftIcons={
       <Button variant="ghost" aria-label="Back" className="[&_svg]:!size-6 text-primary" onClick={back}>
         <ChevronLeft />
@@ -122,7 +124,7 @@ function RouteComponent() {
     } />}>
     <div className="p-3 flex flex-col gap-3">
       <ElapsedTime activityRow={activityRow} />
-      <ActivityHeader activityRow={activityRow} linkedItem={linkedItem} handleUnarchiveActivity={handleUnarchiveActivity} titleRef={titleRef} />
+      <ActivityHeader activityRow={activityRow} linkedItem={linkedItem} handleUnarchiveActivity={handleUnarchiveActivity} titleRef={titleRef} activityState={activityState} />
       {linkedItem && <LinkedItem activityRow={activityRow} linkedItem={linkedItem} />}
       <Sessions activityRow={activityRow} />
     </div>
@@ -133,16 +135,15 @@ function ElapsedTime({ activityRow }: { activityRow: ActivityWithSessions }) {
   const elapsedMs = useElapsedTime(activityRow.activity.id)
   return (
     <div className="flex items-center justify-center w-full h-50">
-      <span className="text-3xl">{formatDuration(elapsedMs, true)}</span>
+      {elapsedMs !== null && <span className="text-3xl">{formatDuration(elapsedMs, true)}</span>}
     </div>
   )
 }
 
-function ActivityHeader({ activityRow, linkedItem, handleUnarchiveActivity, titleRef }: { activityRow: ActivityWithSessions, linkedItem?: WorkItem, handleUnarchiveActivity: () => void, titleRef: React.Ref<HTMLElement | null> }) {
+function ActivityHeader({ activityRow, linkedItem, handleUnarchiveActivity, titleRef, activityState }: { activityRow: ActivityWithSessions, linkedItem?: WorkItem, handleUnarchiveActivity: () => void, titleRef: React.Ref<HTMLElement | null>, activityState?: ActivityState }) {
   const now = useNow()
   const { showToast } = useToast()
   const { startActivity, stopActivity } = useActivityActions()
-  const activityState = useActivityStatus(activityRow.activity.id)
   const { t } = useTranslation()
 
   return (
@@ -610,6 +611,22 @@ const DeleteSessionsConfirmationModal = NiceModal.create(({ sessionIds, onConfir
           }
         },
         { label: "Cancel", onClick: () => close() }
+      ]}
+      show={visible}
+    />
+  )
+})
+
+const NotFoundModal = NiceModal.create(({ back }: { back: () => void }) => {
+  const modal = useModal()
+  const { visible, close } = simpleModalHandler(modal)
+  const { t } = useTranslation()
+
+  return (
+    <ConfirmationModal
+      prompt={t("activity.detailsView.notFound")}
+      buttons={[
+        { label: t("generic.ok"), onClick: () => { close(); back(); } }
       ]}
       show={visible}
     />

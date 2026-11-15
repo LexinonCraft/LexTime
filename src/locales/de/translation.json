@@ -27,6 +27,7 @@
   "generic.hoursAgo": "vor {{time}} Stunden",
   "generic.justNow": "gerade eben",
   "generic.minutesAgo": "vor {{time}} Minuten",
+  "generic.ok": null,
   "generic.unarchive": "Wiederherstellen",
   "generic.undo": "Rückgängig",
   "generic.updatedAt": "{{time}} aktualisiert",

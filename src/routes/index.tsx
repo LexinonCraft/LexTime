@@ -38,7 +38,7 @@ function RouteComponent() {
     </div>
 
     <h2 className="my-3 text-2xl font-bold">Recent activities</h2>
-    <span>{t('test')}</span>
+    <Link to="/activities/$activityId" params={{ activityId: "1" }}>{t('test')}</Link>
     <div className="space-y-3">
       {recentActivities.length === 0 && (
         <Card>

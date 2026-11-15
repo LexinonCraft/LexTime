@@ -27,6 +27,7 @@
   "generic.hoursAgo": "Relative time in hours",
   "generic.justNow": "Relative time for a recent event",
   "generic.minutesAgo": "Relative time in minutes",
+  "generic.ok": "OK button label",
   "generic.unarchive": "Un-Archive action",
   "generic.undo": "Undo button label",
   "generic.updatedAt": "Relative time when an item was updated",

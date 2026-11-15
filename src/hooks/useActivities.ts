@@ -54,10 +54,12 @@ export function useRecentActivities(limit = 8): ActivityWithSessions[] {
   )
 }
 
-export function useActivity(activityId: string | undefined): ActivityWithSessions | undefined {
+export function useActivity(activityId: string | undefined): { loading: boolean, activityWithSessions: ActivityWithSessions | undefined } {
   return useLiveQuery(async () => {
+    await new Promise(resolve => setTimeout(resolve, 2000)) // DEBUG: remove
+
     if (!activityId) {
-      return undefined
+      return { loading: true, activityWithSessions: undefined }
     }
 
     const [activity, sessions] = await Promise.all([
@@ -66,14 +68,17 @@ export function useActivity(activityId: string | undefined): ActivityWithSession
     ])
 
     if (!activity) {
-      return undefined
+      return { loading: false, activityWithSessions: undefined }
     }
 
     return {
-      activity,
-      sessions: sessions.filter((session) => session.activityId === activity.id),
+      loading: false,
+      activityWithSessions: {
+        activity,
+        sessions: sessions.filter((session) => session.activityId === activity.id),
+      }
     }
-  }, [activityId])
+  }, [activityId], { loading: true, activityWithSessions: undefined })
 }
 
 export function useActivityActions() {
