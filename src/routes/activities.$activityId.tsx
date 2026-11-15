@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import NiceModal, { useModal } from "@ebay/nice-modal-react"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { useLiveQuery } from "dexie-react-hooks"
@@ -25,7 +25,7 @@ import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/comp
 import { useToast } from "@/components/ui/toast"
 import { archiveActivity, checkSessionIntegrity, getSessionIntegrityViolations, unarchiveActivity } from "@/data/repositories/activitiesRepository"
 import { type ActivityWithSessions, useActivity, useActivityActions } from "@/hooks/useActivities"
-import useActivityStatus from "@/hooks/useActivityStatus"
+import useActivityStatus, { type ActivityState } from "@/hooks/useActivityStatus"
 import useBack from "@/hooks/useBack"
 import useElapsedTime from "@/hooks/useElapsedTime"
 import { useNow } from "@/hooks/useNow"
@@ -61,21 +61,17 @@ function RouteComponent() {
   const { t } = useTranslation()
   const [titleVisible, titleMounted, titleRef] = useOnScreen()
   const activityState = useActivityStatus(activityId)
+  const openedNotFoundModal = useRef<boolean>(false)
 
-  if (loading || !activityState) {
+  useEffect(() => {
+    if (!loading && !activityRow && !openedNotFoundModal.current) {
+      NiceModal.show(NotFoundModal, { back })
+      openedNotFoundModal.current = true
+    }
+  }, [loading, activityRow, openedNotFoundModal])
+
+  if (!activityRow || !activityState) {
     return <LoadingPage />
-  }
-
-  if (!activityRow) {
-    return (
-      <div className="p-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("activity.detailsView.notFound")}</CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
-    )
   }
 
   async function handleArchiveActivity() {
@@ -615,6 +611,22 @@ const DeleteSessionsConfirmationModal = NiceModal.create(({ sessionIds, onConfir
           }
         },
         { label: "Cancel", onClick: () => close() }
+      ]}
+      show={visible}
+    />
+  )
+})
+
+const NotFoundModal = NiceModal.create(({ back }: { back: () => void }) => {
+  const modal = useModal()
+  const { visible, close } = simpleModalHandler(modal)
+  const { t } = useTranslation()
+
+  return (
+    <ConfirmationModal
+      prompt={t("activity.detailsView.notFound")}
+      buttons={[
+        { label: t("generic.ok"), onClick: () => { close(); back(); } }
       ]}
       show={visible}
     />
