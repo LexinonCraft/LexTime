@@ -50,7 +50,7 @@ function modalTitleBarRightIcons(closeModal: () => void) {
 }
 
 function RouteComponent() {
-  const [titleOnScreen, titleRef] = useOnScreen()
+  const [titleOnScreen, , titleRef] = useOnScreen()
 
   const [showModal, setShowModal] = useState(false)
 
