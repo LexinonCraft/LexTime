@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import { useLiveQuery } from "dexie-react-hooks"
 
 import { useNow } from "@/hooks/useNow"
@@ -11,7 +12,7 @@ export default function useElapsedTime(activityId: string) {
       .and((session) => session.endAt !== null)
       .toArray()
     return sessions.reduce((total, session) => total + (session.endAt! - session.startAt), 0)
-  }, [activityId], 0)
+  }, [activityId], null)
 
   const openSessionsStartTimes = useLiveQuery(async () => {
     const sessions = await db.activitySessions
@@ -20,9 +21,16 @@ export default function useElapsedTime(activityId: string) {
       .and((session) => session.endAt === null)
       .toArray()
     return sessions.map((session) => session.startAt)
-  }, [activityId], [])
-  const now = useNow()
-  const openSessionsElapsedTime = openSessionsStartTimes.reduce((total, startAt) => total + (now - startAt), 0)
+  }, [activityId], null)
 
-  return closedSessionsElapsedTime + openSessionsElapsedTime
+  const now = useNow()
+
+  const result = useMemo(() => {
+    if (closedSessionsElapsedTime === null || openSessionsStartTimes === null) {
+      return null
+    }
+    return closedSessionsElapsedTime + openSessionsStartTimes.reduce((total, startAt) => total + (now - startAt), 0)
+  }, [closedSessionsElapsedTime, openSessionsStartTimes, now])
+
+  return result
 }

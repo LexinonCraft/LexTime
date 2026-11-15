@@ -60,8 +60,9 @@ function RouteComponent() {
   const back = useBack(undefined)
   const { t } = useTranslation()
   const [titleVisible, titleMounted, titleRef] = useOnScreen()
+  const activityState = useActivityStatus(activityId)
 
-  if (loading) {
+  if (loading || !activityState) {
     return <LoadingPage />
   }
 
@@ -127,7 +128,7 @@ function RouteComponent() {
     } />}>
     <div className="p-3 flex flex-col gap-3">
       <ElapsedTime activityRow={activityRow} />
-      <ActivityHeader activityRow={activityRow} linkedItem={linkedItem} handleUnarchiveActivity={handleUnarchiveActivity} titleRef={titleRef} />
+      <ActivityHeader activityRow={activityRow} linkedItem={linkedItem} handleUnarchiveActivity={handleUnarchiveActivity} titleRef={titleRef} activityState={activityState} />
       {linkedItem && <LinkedItem activityRow={activityRow} linkedItem={linkedItem} />}
       <Sessions activityRow={activityRow} />
     </div>
@@ -138,16 +139,15 @@ function ElapsedTime({ activityRow }: { activityRow: ActivityWithSessions }) {
   const elapsedMs = useElapsedTime(activityRow.activity.id)
   return (
     <div className="flex items-center justify-center w-full h-50">
-      <span className="text-3xl">{formatDuration(elapsedMs, true)}</span>
+      {elapsedMs !== null && <span className="text-3xl">{formatDuration(elapsedMs, true)}</span>}
     </div>
   )
 }
 
-function ActivityHeader({ activityRow, linkedItem, handleUnarchiveActivity, titleRef }: { activityRow: ActivityWithSessions, linkedItem?: WorkItem, handleUnarchiveActivity: () => void, titleRef: React.Ref<HTMLElement | null> }) {
+function ActivityHeader({ activityRow, linkedItem, handleUnarchiveActivity, titleRef, activityState }: { activityRow: ActivityWithSessions, linkedItem?: WorkItem, handleUnarchiveActivity: () => void, titleRef: React.Ref<HTMLElement | null>, activityState?: ActivityState }) {
   const now = useNow()
   const { showToast } = useToast()
   const { startActivity, stopActivity } = useActivityActions()
-  const activityState = useActivityStatus(activityRow.activity.id)
   const { t } = useTranslation()
 
   return (
